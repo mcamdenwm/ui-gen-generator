@@ -1,0 +1,54 @@
+{
+  "name": "electron-webpack-quick-start",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "dev": "electron-webpack dev",
+    "compile": "electron-webpack",
+    "dist": "yarn compile && electron-builder",
+    "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null"
+  },
+  "dependencies": {
+    "@workmarket/front-end-components": "9.16.1",
+    "@workmarket/front-end-patterns": "^4.18.2",
+    "@workmarket/hunk": "^1.0.0",
+    "@workmarket/js-utils": "^3.2.1",
+    "@workmarket/koopa": "^3.0.0",
+    "@workmarket/lolz": "^6.1.1",
+    "@workmarket/sherpa": "^0.1.0",
+    "@workmarket/ui-configs": "^1.1.1",
+    "@workmarket/ui-generation": "3.0.0-alpha.54-rc9",
+    "@workmarket/wm-babel-preset": "^0.1.1",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-es2015-classes": "^6.24.1",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-react": "^6.24.1",
+    "immutable": "~3.8.1",
+    "lowdb": "^1.0.0",
+    "react": "15.6.1",
+    "react-dom": "15.6.1",
+    "react-redux": "^5.0.6",
+    "react-tap-event-plugin": "2.0.1",
+    "redux": "^3.7.2",
+    "redux-devtools-extension": "^2.13.2",
+    "redux-first-router": "^0.0.16-next",
+    "redux-first-router-link": "^1.4.2",
+    "redux-logger": "^3.0.6",
+    "redux-thunk": "^2.2.0",
+    "source-map-support": "^0.5.3",
+    "swagger-client": "^3.4.7"
+  },
+  "devDependencies": {
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "electron": "1.7.11",
+    "electron-builder": "^19.55.3",
+    "electron-webpack": "1.12.1",
+    "webpack": "^3.10.0"
+  },
+  "electronWebpack": {
+    "renderer": {
+      "webpackConfig": "custom.webpack.additions.js"
+    }
+  }
+}
