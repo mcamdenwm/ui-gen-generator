@@ -23,6 +23,7 @@ const storeConfig = {
   VIEW: {
     initialState: {
       data: {
+        initial: true,
         uuid: 'my-hello-world',
         type: 'p',
         props: {
@@ -40,6 +41,17 @@ const storeConfig = {
       'VIEW__SET_STATE',
     ],
   },
+  COMPONENT: {
+    initialState: {
+      data: {
+        modalVisible: false,
+      },
+    },
+    handlers: [
+      'COMPONENT__EDIT',
+      'COMPONENT_DADS',
+    ],
+  },
 };
 
 const persistState = store => next => action => {
@@ -48,10 +60,11 @@ const persistState = store => next => action => {
   
   // @todo needs better name
   // @todo how would this work for multiple views?
-  db.set('state.view', state.VIEW.toJS())
-    .write();
-
-  console.log('Persist view to DB ', state.VIEW.toJS());
+  if (!state.VIEW.get('initial')) {
+    db.set('state.view', state.VIEW.toJS())
+      .write();
+    console.log('Persist view to DB ', state.VIEW.toJS());
+  }
 
   return result;
 }

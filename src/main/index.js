@@ -12,7 +12,9 @@ function createMainWindow() {
   // Construct new BrowserWindow
   const window = new BrowserWindow({
     title: 'ui-gen-generator',
-  })
+  });
+  
+  window.maximize();
 
   // Set url for `win`
     // points to `webpack-dev-server` in development

@@ -4,15 +4,25 @@ import configureGetComponent from './app/configureGetComponent';
 import store, { db } from './app/store';
 import { Provider } from 'react-redux';
 
+import editor from './editor';
+import preview from './preview';
+
 const view = db.get('state.view').value();
+
+// Reset body styles
+document.body.style.margin = '0';
+document.body.style.padding = '0';
 
 configureGetComponent()
   .then(getComponent => {
     render(
       (
         <Provider store={store}>
-          <div>
-            <div>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'row',
+          }}>
+            <div className="initializer">
               {
                 getComponent({
                   type: 'WMGeneric',
@@ -27,87 +37,18 @@ configureGetComponent()
                 })
               }
             </div>
-            <div>
+            <div className="editor" style={{
+              flex: 1,
+            }}>
               {
-                getComponent({
-                  type: 'RenderView',
-                  props: {
-                    getComponent,
-                  },
-                  selectors: [{
-                    propName: 'view',
-                    data: {
-                      $$WM__resolve: {
-                        type: 'state',
-                        path: ['VIEW'],
-                      },
-                    },
-                  }],
-                })
+                getComponent(editor)
               }
             </div>
-            <div className="prop-editor">
+            <div className="preview" style={{
+              flex: 1,
+            }}>
               {
-                getComponent({
-                  type: 'WMGeneric',
-                  children: [{
-                    type: 'WMTextField',
-                    props: {
-                      id: 'children',
-                      floatingLabelText: `Children of 'p'`
-                    },
-                    actions: [{
-                      propName: 'onChange',
-                      sequence: [{
-                        type: 'VIEW__SET_STATE',
-                        path: ['VIEW', 'children'],
-                        data: {
-                          $$WM__resolve: {
-                            type: 'event',
-                            index: 1,
-                          },
-                        },
-                      }]
-                    }],
-                    selectors: [{
-                      propName: 'value',
-                      data: {
-                        $$WM__resolve: {
-                          type: 'state',
-                          path: ['VIEW', 'children'],
-                        },
-                      },
-                    }]
-                  }, {
-                    type: 'WMTextField',
-                    props: {
-                      id: 'color',
-                      floatingLabelText: `props.style.color of 'p'`
-                    },
-                    actions: [{
-                      propName: 'onChange',
-                      sequence: [{
-                        type: 'VIEW__SET_STATE',
-                        path: ['VIEW', 'props', 'style', 'color'],
-                        data: {
-                          $$WM__resolve: {
-                            type: 'event',
-                            index: 1,
-                          },
-                        },
-                      }]
-                    }],
-                    selectors: [{
-                      propName: 'value',
-                      data: {
-                        $$WM__resolve: {
-                          type: 'state',
-                          path: ['VIEW', 'props', 'style', 'color'],
-                        },
-                      },
-                    }]
-                  }]
-                })
+                getComponent(preview(getComponent))
               }
             </div>
           </div>

@@ -9,7 +9,7 @@
     "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null"
   },
   "dependencies": {
-    "@workmarket/front-end-components": "9.16.1",
+    "@workmarket/front-end-components": "10.2.1",
     "@workmarket/front-end-patterns": "^4.18.2",
     "@workmarket/hunk": "^1.0.0",
     "@workmarket/js-utils": "^3.2.1",

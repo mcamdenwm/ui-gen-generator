@@ -19,6 +19,14 @@ module.exports = {
           presets: ['react']
         }
       }
+    }, {
+      test: /\.woff2?$/,
+      use: {
+        loader: "url-loader",
+        options: {
+          limit: 50000,
+        },
+      },
     }]
   }
 }

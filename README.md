@@ -3,8 +3,9 @@
 ## Prototype version
 
 [x] UI Gen DB
-[] Preview
+[] Tree view
 [] Edit area
+[] Preview
 [] Component library view
 [] Drag component to edit area
 [] Actions ??
@@ -28,3 +29,4 @@
 [] UI Types
 [] Entity mapping
 [] Fetch Action
+[] Material UI fonts

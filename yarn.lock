@@ -49,12 +49,12 @@
   version "1.13.4"
   resolved "https://registry.yarnpkg.com/@types/webpack-env/-/webpack-env-1.13.4.tgz#ca3578299323f4fbec770bb32ed581198f0a8ed9"
 
-"@workmarket/front-end-components@9.16.1":
-  version "9.16.1"
-  resolved "https://registry.npmjs.org/@workmarket/front-end-components/-/front-end-components-9.16.1.tgz#17969de37854d0165ff024155bef32482102a0f3"
+"@workmarket/front-end-components@10.2.1":
+  version "10.2.1"
+  resolved "https://registry.npmjs.org/@workmarket/front-end-components/-/front-end-components-10.2.1.tgz#024858262b59d710538f6ff541fd926ff74b5644"
   dependencies:
     d3-hierarchy "~1.1.5"
-    fixed-data-table-2 "^0.8.5"
+    fixed-data-table-2 "^0.8.8"
     immutable "~3.8.1"
     material-ui "~0.18.3"
     moment "~2.18.1"
@@ -66,6 +66,7 @@
     react-immutable-proptypes "^2.1.0"
     react-proptype-conditional-require "~1.0.4"
     recompose "~0.23.5"
+    shortid "^2.2.8"
     validator "~7.0.0"
 
 "@workmarket/front-end-patterns@^4.18.2":
@@ -3312,7 +3313,7 @@ find-up@^2.0.0, find-up@^2.1.0:
   dependencies:
     locate-path "^2.0.0"
 
-fixed-data-table-2@^0.8.5:
+fixed-data-table-2@^0.8.8:
   version "0.8.9"
   resolved "https://registry.npmjs.org/fixed-data-table-2/-/fixed-data-table-2-0.8.9.tgz#aced1cee338dad908027c7458765d8710044c24e"
   dependencies:

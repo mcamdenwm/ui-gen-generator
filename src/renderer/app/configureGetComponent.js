@@ -7,6 +7,7 @@ import * as Patterns from '@workmarket/front-end-patterns';
 import store from './store';
 import Json from 'react-json';
 import RenderView from './RenderView';
+import Tree from './Tree';
 
 // Store the local configuration so we don't hit the API again
 let configuredGetComponent;
@@ -19,13 +20,19 @@ export default async () => {
     await Swagger(API_URL, {}).then((client) => {
       configuredGetComponent = configureGetComponent({
         api: client,
-        functions: {},
+        functions: {
+          log: (n) => {
+            console.log(n);
+            return n;
+          }
+        },
         store,
         components: {
           ...Components,
           ...Patterns,
           Json,
           RenderView,
+          Tree,
         },
       });
 
