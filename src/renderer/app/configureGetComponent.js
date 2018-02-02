@@ -5,6 +5,8 @@ import Swagger from 'swagger-client';
 import * as Components from '@workmarket/front-end-components';
 import * as Patterns from '@workmarket/front-end-patterns';
 import store from './store';
+import Json from 'react-json';
+import RenderView from './RenderView';
 
 // Store the local configuration so we don't hit the API again
 let configuredGetComponent;
@@ -22,6 +24,8 @@ export default async () => {
         components: {
           ...Components,
           ...Patterns,
+          Json,
+          RenderView,
         },
       });
 

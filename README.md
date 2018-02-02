@@ -2,7 +2,7 @@
 
 ## Prototype version
 
-[] UI Gen DB
+[x] UI Gen DB
 [] Preview
 [] Edit area
 [] Component library view

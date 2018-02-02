@@ -3401,6 +3401,10 @@ fragment-cache@^0.2.1:
   dependencies:
     map-cache "^0.2.2"
 
+freezer-js@^0.5.2:
+  version "0.5.2"
+  resolved "https://registry.npmjs.org/freezer-js/-/freezer-js-0.5.2.tgz#c24dbc47fc327b3475ea34adc408b0953f2a4907"
+
 fresh@0.5.2:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/fresh/-/fresh-0.5.2.tgz#3d8cadd90d976569fa835ab1f8e4b23a105605a7"
@@ -5139,6 +5143,10 @@ oauth-sign@~0.8.1, oauth-sign@~0.8.2:
   version "0.8.2"
   resolved "https://registry.yarnpkg.com/oauth-sign/-/oauth-sign-0.8.2.tgz#46a6ab7f0aead8deae9ec0565780b7d4efeb9d43"
 
+object-assign@^2.0.0:
+  version "2.1.1"
+  resolved "https://registry.npmjs.org/object-assign/-/object-assign-2.1.1.tgz#43c36e5d569ff8e4816c4efa8be02d26967c18aa"
+
 object-assign@^4.0.1, object-assign@^4.1.0, object-assign@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-4.1.1.tgz#2109adc7965887cfc05cbbd442cac8bfbb360863"
@@ -6054,6 +6062,13 @@ react-hot-loader@3.0.0-beta.7:
 react-immutable-proptypes@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/react-immutable-proptypes/-/react-immutable-proptypes-2.1.0.tgz#023d6f39bb15c97c071e9e60d00d136eac5fa0b4"
+
+react-json@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.npmjs.org/react-json/-/react-json-0.2.1.tgz#f348390189b290cbf7f16c62d68303248e553f70"
+  dependencies:
+    freezer-js "^0.5.2"
+    object-assign "^2.0.0"
 
 react-proptype-conditional-require@~1.0.4:
   version "1.0.4"

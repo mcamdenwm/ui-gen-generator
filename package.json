@@ -28,6 +28,7 @@
     "lowdb": "^1.0.0",
     "react": "15.6.1",
     "react-dom": "15.6.1",
+    "react-json": "^0.2.1",
     "react-redux": "^5.0.6",
     "react-tap-event-plugin": "2.0.1",
     "redux": "^3.7.2",

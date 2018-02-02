@@ -37,6 +37,7 @@ const storeConfig = {
     },
     handlers: [
       'VIEW__ADD_COMPONENT',
+      'VIEW__SET_STATE',
     ],
   },
 };
@@ -49,6 +50,8 @@ const persistState = store => next => action => {
   // @todo how would this work for multiple views?
   db.set('state.view', state.VIEW.toJS())
     .write();
+
+  console.log('Persist view to DB ', state.VIEW.toJS());
 
   return result;
 }
