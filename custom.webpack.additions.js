@@ -10,13 +10,13 @@ module.exports = {
           cacheDirectory: true,
           plugins: [
             // Here, we include babel plugins that are only required for the
-            // renderer process. The 'transform-*' plugins must be included
-            // before react-hot-loader/babel
+            // renderer process.
             'transform-class-properties',
             'transform-es2015-classes',
-            'transform-object-rest-spread'
+            'transform-object-rest-spread',
+            'dynamic-import-webpack'
           ],
-          presets: ['react']
+          presets: ['react', 'latest']
         }
       }
     }, {

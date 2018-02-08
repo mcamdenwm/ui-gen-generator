@@ -52,6 +52,19 @@ const storeConfig = {
       'COMPONENT_DADS',
     ],
   },
+  COMPONENT_EDITOR: {
+    initialState: {
+      data: {
+        open: false,
+        component: 'a-b-c',
+      },
+    },
+    handlers: [
+      'COMPONENT_EDITOR__EDIT_COMPONENT',
+      'COMPONENT_EDITOR__CLOSE',
+      'COMPONENT_EDITOR__UPDATE_FIELD',
+    ],
+  },
 };
 
 const persistState = store => next => action => {
@@ -73,6 +86,8 @@ const store = generateStore({
   reducers: generateState(storeConfig),
   middlewares: [ persistState ],
 });
+
+window._store = store;
 
 export {
   store as default,

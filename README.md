@@ -3,9 +3,9 @@
 ## Prototype version
 
 [x] UI Gen DB
-[] Tree view
+[x] Tree view
 [] Edit area
-[] Preview
+[x] Preview
 [] Component library view
 [] Drag component to edit area
 [] Actions ??

@@ -92,18 +92,18 @@ export default {
 		actions: [{
 			propName: 'onNodeClick',
 			sequence: [{
-				type: 'COMPONENT__EDIT',
-				path: ['COMPONENT', 'config'],
-				data: {
-					$$WM__resolve: {
-						type: 'event',
-						index: 0,
-					},
-				},
-			}, {
-				type: 'COMPONENT__EDIT',
-				path: ['COMPONENT', 'modalVisible'],
-				data: true,
+        type: 'COMPONENT_EDITOR__EDIT_COMPONENT',
+        path: ['COMPONENT_EDITOR'],
+        data: {
+        	open: true,
+        	component: {
+        		$$WM__resolve: {
+        			type: 'event',
+        			index: 0,
+        			path: ['data', 'uuid']
+        		},
+        	}
+        },
 			}]
 		}],
 		selectors: [{
