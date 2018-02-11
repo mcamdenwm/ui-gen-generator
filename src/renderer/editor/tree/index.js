@@ -115,7 +115,7 @@ export default {
 					args: [{
 						$$WM__resolve: {
 							type: 'state',
-							path: ['VIEW'],
+							path: ['VIEW', 'view'],
 							toJS: true,
 						},
 					}] 

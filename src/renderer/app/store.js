@@ -10,31 +10,67 @@ const adapter = new LocalStorageAdapter('db');
 const db = low(adapter);
 
 const storeConfig = {
-  FOO: {
-    initialState: {
-      data: {
-        bar: 'foobar',
-      },
-    },
-    handlers: [
-      'FOO__SET_BAR',
-    ],
-  },
   VIEW: {
     initialState: {
       data: {
-        initial: true,
-        uuid: 'my-hello-world',
-        type: 'p',
-        props: {
-          style: {
-            color: 'purple',
-            padding: '0.25em',
-            border: '1px solid purple',
-          },
+        "view": {
+          "uuid": "root",
+          "type": "WMGeneric",
+          "children": [
+          {
+            "uuid": "a-b-c",
+            "type": "WMFlatButton",
+            "props": {
+              "label": "Click Me"
+            }
+          }
+          ]
         },
-        children: 'Hello World!',
-      },
+        functions: {
+          fn1: {
+            $$WM__resolve: {
+              uuid: '1',
+              type: 'fn',
+              name: 'map',
+              args: [{
+                $$WM__resolve: {
+                  uuid: '2',
+                  type: 'fn',
+                  name: 'trim',
+                },
+              }, {
+                $$WM__resolve: {
+                  uuid: '3',
+                  type: 'fn',
+                  name: 'split',
+                  args: [',', 'x,y, x, z   ']
+                },
+              }],
+            },
+          }
+        },
+        functionPositions: {
+          fn1: [{
+            uuid: '1',
+            position: {
+              left: 0,
+              top: -257.14285714285717
+            },
+          }, {
+            uuid: '2',
+            position: {
+              left: -240,
+              top: -321.42857142857144
+            },
+          }, {
+            uuid: '3',
+            position: {
+              left: -240,
+              top: -192.8571428571429
+            },
+          }]
+        },
+      }
     },
     handlers: [
       'VIEW__ADD_COMPONENT',
@@ -74,7 +110,7 @@ const persistState = store => next => action => {
   // @todo needs better name
   // @todo how would this work for multiple views?
   if (!state.VIEW.get('initial')) {
-    db.set('state.view', state.VIEW.toJS())
+    db.set('state', state.VIEW.toJS())
       .write();
     console.log('Persist view to DB ', state.VIEW.toJS());
   }

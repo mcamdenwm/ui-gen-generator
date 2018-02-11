@@ -40,32 +40,33 @@ class ComponentEditor extends Component {
 	}
 
 	render() {
-		return (
-			<div style={{ overflow: 'auto', height: '100vh' }}>
-			 {
-				 	map((key) => {
-						const propType = this.state.componentPropTypes[key];
-						let Field = WMTextField;
+		return <div />;
+		// return (
+		// 	<div style={{ overflow: 'auto', height: '100vh' }}>
+		// 	 {
+		// 		 	map((key) => {
+		// 				const propType = this.state.componentPropTypes[key];
+		// 				let Field = WMTextField;
 
-						if (propType.type === 'bool') {
-							Field = WMToggle;
-						}
+		// 				if (propType.type === 'bool') {
+		// 					Field = WMToggle;
+		// 				}
 
-						return (
-							<div>
-								<Field
-									name={key}
-									label={key}
-									floatingLabelText={key}
-									value={this.props.component.getIn(['props', key])}
-									onChange={(e, value) => { this.props.onFieldChange({ [key]: value }) }}
-								/>
-							</div>
-						);
-					}, Object.keys(this.state.componentPropTypes))
-				}
-			</div>
-		);
+		// 				return (
+		// 					<div>
+		// 						<Field
+		// 							name={key}
+		// 							label={key}
+		// 							floatingLabelText={key}
+		// 							value={this.props.component.getIn(['props', key])}
+		// 							onChange={(e, value) => { this.props.onFieldChange({ [key]: value }) }}
+		// 						/>
+		// 					</div>
+		// 				);
+		// 			}, Object.keys(this.state.componentPropTypes))
+		// 		}
+		// 	</div>
+		// );
 	}
 }
 

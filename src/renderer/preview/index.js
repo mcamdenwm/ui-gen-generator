@@ -8,7 +8,7 @@ export default (getComponent) => ({
 		data: {
 			$$WM__resolve: {
 				type: 'state',
-				path: ['VIEW'],
+				path: ['VIEW', 'view'],
 			},
 		},
 	}],

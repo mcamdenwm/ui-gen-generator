@@ -10,6 +10,7 @@ import RenderView from './RenderView';
 import Tree from './Tree';
 import ComponentEditor from '../components/ComponentEditor';
 import ViewTreeRenderer from '../components/ViewTreeRenderer';
+import FunctionEditor from '../components/FunctionEditor';
 
 import Immutable, { Map } from 'immutable';
 import TreeUtils from 'immutable-treeutils';
@@ -69,6 +70,7 @@ export default async () => {
           Tree,
           ComponentEditor,
           ViewTreeRenderer,
+          FunctionEditor,
         },
       });
 
