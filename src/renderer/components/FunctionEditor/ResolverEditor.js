@@ -32,9 +32,11 @@ class ResolverEditor extends Component {
 	}
 
 	removeArg = (arg) => {
-		this.setState({
-			args: this.state.args.filter(a => a !== arg),
-		});
+		// this.setState({
+		// 	args: this.state.args.filter(a => a !== arg),
+		// });
+
+		this.props.onRemoveArg && this.props.onRemoveArg(arg);
 	}
 
 	addArg = () => {

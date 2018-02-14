@@ -47,7 +47,7 @@ function describeArc(x, y, radius, startAngle, endAngle){
 const state = {
 	FOO: fromJS({
 		bar: {
-			baz: 'x,y, x, z ',
+			baz: 'This is, foo, bar, baz   ',
 		},
 	}),
 };
@@ -80,6 +80,19 @@ function walkResolve(stack, cb) {
 	}
 
 	return walker(stack);
+}
+
+function walk(stack, cb) {
+	function walker(node) {
+		let block = Object.assign({}, node);
+		if (node.args) {
+			block.args = _.map(node.args, walker);
+		}
+
+		return cb(block);
+	}
+
+	return walker(stack, cb);
 }
 
 var color = scaleLinear()
@@ -129,6 +142,27 @@ class FunctionEditor extends Component {
 			functionTree,
 			functionLinks,
 			functionTreeAsNodes,
+		});
+	}
+
+	writeUIGenTree(functionTree) {
+		// let resolveStack;
+
+		return walk(functionTree, (block) => {
+			if (block.type === 'string') {
+				return block.name;
+			}
+
+			if (block.type === 'state') {
+				block.path = block.args;
+				delete block.args;
+			}
+
+			return {
+				$$WM__resolve: {
+					...block,
+				},
+			};
 		});
 	}
 
@@ -206,20 +240,31 @@ class FunctionEditor extends Component {
 	}
 	handleMouseDownOnNode = (e, params) => {
 		this._dragFrom = params;
-		console.log('handleMouseDownOnNode', e, params);
+		this._dragFrom.args = this._dragFrom.args.toJS();
 	}
 
 	handleMouseUpOnNode = (e, params) => {
 		this.stopPropOfEditor = true;
 		if (this._dragFrom.uuid !== params.uuid) {
+			const dragFrom = this._dragFrom;
 			// Drag from node
 			e.preventDefault();
 			e.stopPropagation();
 
+			// Add this as arg to another node
+			let resolveSeq = treeUtils.byId(this.state.functionTree, params.uuid)
+			let resolverTree;
+			if (resolveSeq.size) {
+				let resolverTree = this.state.functionTree.updateIn(resolveSeq.concat('args'), args => args.push(dragFrom))
+				
+				const uiGenTree = JSON.stringify(this.writeUIGenTree(resolverTree.toJS().args[0]));
+
+				this.setFunctions(`${uiGenTree}`, this.state.functionPositions);
+			}
+
 			this._dragFrom = null;
 		} else {
 			// Click (or otherwise mouseup) on node
-			// debugger;
 			if(!params.isResolvedComputation) {
 				e.preventDefault();
 				e.stopPropagation();
@@ -227,7 +272,18 @@ class FunctionEditor extends Component {
 			}
 		}
 		
-		console.log('handleMouseUpOnNode', e, params);
+		// console.log('handleMouseUpOnNode', e, params);
+	}
+
+	handleRemoveArg = (params, arg) => {
+		let argSeq = treeUtils.find(this.state.functionTree, n => n.get('uuid') === arg.uuid && n.get('name') === arg.name);
+		let resolverTree = this.state.functionTree.removeIn(argSeq);
+		
+		const uiGenTree = JSON.stringify(this.writeUIGenTree(resolverTree.toJS().args[0]));
+		console.log(resolverTree.toJS().args[0]);
+
+		this.setFunctions(`${uiGenTree}`, this.state.functionPositions);
+
 	}
 
 	render() {
@@ -252,6 +308,7 @@ class FunctionEditor extends Component {
 					args={editorParams.args && editorParams.args.toJS()}
 					argColors={argColors}
 					onSave={() => this.handleSave(editorParams)}
+					onRemoveArg={(arg) => this.handleRemoveArg(editorParams, arg)}
 				/>
 			)}
 			<svg width="1000" height="600" onClick={(e) => {
@@ -259,7 +316,9 @@ class FunctionEditor extends Component {
 					this.showResolverEditor(e, null);
 				}
 				this.stopPropOfEditor = false;
-			} }>
+			} } style={{
+				userSelect: 'none',
+			}}>
 				<g transform="translate(500, 500)">
 					{
 						functionLinks.map((link, i) => {
