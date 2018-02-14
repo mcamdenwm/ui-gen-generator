@@ -26,6 +26,14 @@ const storeConfig = {
           }
           ]
         },
+        store: {
+          FEATURE: {
+            initialState: {},
+            handlers: [
+              'FEATURE__FOO',
+            ],
+          }
+        },
         functions: {
           fn1: {
             $$WM__resolve: {

@@ -47,8 +47,6 @@ export default async () => {
               (node) => node.merge(data),
             );
 
-            console.log(f);
-
             return f;
           },
           getComponentNode: (uuid, state) => {

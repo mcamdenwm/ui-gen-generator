@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { WMTree } from '@workmarket/front-end-components';
 import { compose, fromPairs, toPairs, map, range, trim, split } from 'ramda';
 import _ from 'lodash';
-import { fromJS } from 'immutable';
+import { fromJS, Map, List } from 'immutable';
 import TreeUtils from 'immutable-treeutils';
 import { hierarchy } from 'd3-hierarchy';
 import { makeLib } from '@workmarket/ui-generation/dist-es/data/resolveFunctions';
@@ -11,13 +11,45 @@ import { scaleLinear } from 'd3-scale';
 
 import CurlyBracketLeft from './CurlyBracketLeft';
 import CurlyBracketRight from './CurlyBracketRight';
+import ParenthesisTonde from './ParenthesisTonde';
+import LeftParenthesis from './LeftParenthesis';
+import RightParenthesis from './RightParenthesis';
+import ResolverEditor from './ResolverEditor';
 
 const treeUtils = new TreeUtils(null, 'uuid', 'args');
 
 const RESOLVE = '$$WM__resolve';
 
+function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+  var angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
+
+  return {
+    x: centerX + (radius * Math.cos(angleInRadians)),
+    y: centerY + (radius * Math.sin(angleInRadians))
+  };
+}
+
+function describeArc(x, y, radius, startAngle, endAngle){
+
+    var start = polarToCartesian(x, y, radius, endAngle);
+    var end = polarToCartesian(x, y, radius, startAngle);
+
+    var largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+
+    var d = [
+        "M", start.x, start.y, 
+        "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y
+    ].join(" ");
+
+    return d;       
+}
+
 const state = {
-	REDUCER: fromJS({}),
+	FOO: fromJS({
+		bar: {
+			baz: 'x,y, x, z ',
+		},
+	}),
 };
 
 const resolver = getResolver({
@@ -51,8 +83,12 @@ function walkResolve(stack, cb) {
 }
 
 var color = scaleLinear()
-    .domain([10, 40])
-    .range(["red", "steelblue"]);
+    .domain([1, 60])
+    .range(["green", "steelblue"]);
+
+/*
+ This is really a ResolverEditor(Tree), it visualizes a resolve composition
+ */
 
 class FunctionEditor extends Component {
 	state: {}
@@ -85,56 +121,178 @@ class FunctionEditor extends Component {
 			},
 		}
 
+		const functionTreeAsNodes = treeUtils.nodes(functionTree).map(path => functionTree.getIn(path));
+
 		this.setState({
 			functions: parsedFns,
-			functionPositions: functionPositions.concat(rootPosition),
+			functionPositions: this.assignColor(functionPositions.concat(rootPosition)),
 			functionTree,
 			functionLinks,
+			functionTreeAsNodes,
 		});
 	}
+
+	assignColor(positions) {
+		return positions.map((position, i) => {
+			const c = color((i+1) * 40);
+			position.color = c;
+			return position;
+		});
+	}
+
+	showResolverEditor = (e, params) => {
+		const container = document.getElementById('function-editor');
+
+		// links are the args of the fn, so we can extract the arg color from the links
+		const argColors = this.state.functionLinks.filter(link => link.source.data.uuid === params && params.uuid)
+			.reduce((memo, link) => {
+				if (link.target.data.uuid === '__') {
+					return null;
+				}
+				const target = this.state.functionPositions.find(n => n.uuid === link.target.data.uuid);
+
+				return {
+					...memo,
+					[target.uuid]: target.color,
+				};
+			}, {});
+		
+		const newNode = {
+			uuid: 'new',
+			name: 'state',
+			args: fromJS([
+				{type: 'string', name: 'FOO'},
+				{type: 'string', name: 'bar'}, 
+				{type: 'string', name: 'baz'},
+			]),
+			type: 'state',
+		};
+
+		const newPositions = [].concat(this.state.functionPositions);
+		let newFunctionTreeAsNodes = this.state.functionTreeAsNodes;
+
+		const translateX = 500;
+		const translateY = 500;
+
+		if (!params) {
+			newPositions.push({
+				position: {
+					left: (e.clientX - container.offsetLeft) - translateX,
+					top: (e.clientY) - translateY,
+				},
+				uuid: 'new',
+			});
+
+			newFunctionTreeAsNodes = newFunctionTreeAsNodes.push(fromJS(newNode));
+		}
+
+		this.setState({
+			showEditor: true,
+			position: {
+				x: e.clientX - container.offsetLeft,
+				y: e.clientY,
+			},
+			editorParams: params || newNode,
+			functionPositions: this.assignColor(newPositions),
+			functionTreeAsNodes: newFunctionTreeAsNodes,
+			argColors,
+		});
+	}
+
+	handleSave = (params) => {
+		this.setState({
+			showEditor: false,
+		})
+	}
+	handleMouseDownOnNode = (e, params) => {
+		this._dragFrom = params;
+		console.log('handleMouseDownOnNode', e, params);
+	}
+
+	handleMouseUpOnNode = (e, params) => {
+		this.stopPropOfEditor = true;
+		if (this._dragFrom.uuid !== params.uuid) {
+			// Drag from node
+			e.preventDefault();
+			e.stopPropagation();
+
+			this._dragFrom = null;
+		} else {
+			// Click (or otherwise mouseup) on node
+			// debugger;
+			if(!params.isResolvedComputation) {
+				e.preventDefault();
+				e.stopPropagation();
+				this.showResolverEditor(e, params);
+			}
+		}
+		
+		console.log('handleMouseUpOnNode', e, params);
+	}
+
 	render() {
 		const {
 			functionPositions,
 			functionTree,
-			functionLinks
+			functionLinks,
+			showEditor,
+			position,
+			editorParams,
+			functionTreeAsNodes,
+			argColors,
 		} = this.state;
 
-		return <div>
-			<svg width="1000" height="600">
+		return <div style={{ position: 'relative' }} id="function-editor">
+			{showEditor && (
+				<ResolverEditor style={{
+					left: position.x,
+					top: position.y,
+				}}
+					type={editorParams.type}
+					args={editorParams.args && editorParams.args.toJS()}
+					argColors={argColors}
+					onSave={() => this.handleSave(editorParams)}
+				/>
+			)}
+			<svg width="1000" height="600" onClick={(e) => {
+				if (!this.stopPropOfEditor) {
+					this.showResolverEditor(e, null);
+				}
+				this.stopPropOfEditor = false;
+			} }>
 				<g transform="translate(500, 500)">
 					{
-						functionLinks.map(link => {
+						functionLinks.map((link, i) => {
 							if (link.target.data.uuid === '__') {
 								return null;
 							}
 							const target = functionPositions.find(n => n.uuid === link.target.data.uuid);
 							const source = functionPositions.find(n => n.uuid === link.source.data.uuid);
 
-							const path = treeUtils.byId(functionTree, target.uuid);
-							const depth = path.size;
-							const c = color((depth+1) * 10);
+							let sourceLeft = source.position.left;
+							let sourceTop = source.position.top;
+							let targetLeft = target.position.left;
+							let targetTop = target.position.top;
 
 							return (
 							<path
-								stroke={c}
+								stroke={target.color}
 								strokeWidth="2px"
-								d={ `M${source.position.left},${source.position.top} L ${target.position.left} ${target.position.top}` } />
+								d={ `M${sourceLeft},${sourceTop} L ${targetLeft} ${targetTop}` } />
 							);
 						})
 					}
 					{
-						functionPositions.map(fnPosition => {
-							const path = treeUtils.byId(functionTree, fnPosition.uuid);
-							const fn = functionTree.getIn(path);
-							if (!fn) {
-								console.log('no fn at path', path, fn, fnPosition.uuid);
-							}
+						functionPositions.map((fnPosition, i) => {
+							const fn = functionTreeAsNodes.find((n) => {
+								return n.get('uuid') === fnPosition.uuid
+							});
 							const args = fn.get('args');
 							const hasArgs = args && args.size;
-							const depth = path.size;
-							const c = color((depth+1) * 10);
 							let name = fn.get('name');
 							const isResolvedComputation = fn.get('uuid') === 'resolved-computation';
+
+							const argsContainOnlyLiterals = args.reduce((memo, arg) => (memo && arg.get('type') !== 'string'), true);
 
 							if (hasArgs && !isResolvedComputation) {
 								const argParts = args.reduce((memo, arg) => {
@@ -154,17 +312,20 @@ class FunctionEditor extends Component {
 							}
 
 							return (
-								<g transform={`translate(${fnPosition.position.left}, ${fnPosition.position.top})`}>
+								<g transform={`translate(${fnPosition.position.left}, ${fnPosition.position.top})`}
+									onMouseDown={(e) => { this.handleMouseDownOnNode(e, { args, name, uuid: fnPosition.uuid, type: fn.get('type') }) }}
+									onMouseUp={(e) => { this.handleMouseUpOnNode(e, { args, name, isResolvedComputation, uuid: fnPosition.uuid, type: fn.get('type') })}}
+								>
 									{!isResolvedComputation && (
-										<circle r="30" fill="none" stroke="steelblue" strokeWidth="2px" />
+										<circle r="30" fill="white" stroke={fnPosition.color} strokeWidth="2px" />
 									)}
 									{isResolvedComputation && (
 										<g transform="scale(.2)">
 											<g transform="translate(0, -100)">
-												<CurlyBracketLeft fill={c} />
+												<CurlyBracketLeft fill="#004499" />
 											</g>
 											<g transform="translate(200, -100)">
-												<CurlyBracketRight fill={c} />
+												<CurlyBracketRight fill="#004499" />
 											</g>
 										</g>
 									)}
@@ -177,15 +338,43 @@ class FunctionEditor extends Component {
 									</text>
 									{hasArgs && !isResolvedComputation && (
 										<g>
-											<circle r="4.5" fill={c} />
+											<circle r="4.5" fill={fnPosition.color} />
 										</g>
 									)}
 									{!hasArgs && !isResolvedComputation && (
 										<g>
-											<circle r="1.5" fill={c} />
+											<circle r="1.5" fill={fnPosition.color} />
 										</g>
 									)}
 								</g>
+							);
+						})
+					}
+					{
+						functionLinks.reverse().map((link, i) => {
+							if (link.target.data.uuid === '__' || link.source.data.uuid === 'resolved-computation') {
+								return null;
+							}
+							const target = functionPositions.find(n => n.uuid === link.target.data.uuid);
+							const source = functionPositions.find(n => n.uuid === link.source.data.uuid);
+
+							let sourceLeft = source.position.left;
+							let sourceTop = source.position.top;
+							{/*let targetLeft = target.position.left;*/}
+							{/*let targetTop = target.position.top;*/}
+							const degreesPerArc = 360 / functionLinks.length;
+							const offsetAngle = 50;
+							const startAngle = (i*degreesPerArc) + offsetAngle;
+							const endAngle = ((i*degreesPerArc) + degreesPerArc) + offsetAngle;
+
+							const arc = describeArc(sourceLeft, sourceTop, 30, startAngle, endAngle);
+
+							return (
+							<path
+								stroke={target.color}
+								strokeWidth="2px"
+								fill="none"
+								d={ arc } />
 							);
 						})
 					}
