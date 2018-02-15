@@ -2,8 +2,8 @@ module.exports = {
   entry: ['babel-polyfill', './src/renderer/index.js'],
   module: {
     rules: [{
-      test: /\.jsx?$/,
-      exclude: /node_modules/,
+      test: /\.js/,
+      exclude: /node_modules\/(?!@workmarket\/front\-end\-components)/,
       use: {
         loader: 'babel-loader',
         options: {

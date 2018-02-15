@@ -136,7 +136,7 @@ configureGetComponent()
                     data: {
                       $$WM__resolve: {
                         type: 'state',
-                        path: ['VIEW'],
+                        path: ['VIEW', 'view'],
                         toJS: true,
                       },
                     },
@@ -146,7 +146,6 @@ configureGetComponent()
             </div>
             <div className="preview" style={{
               width: '70%',
-              display: 'none',
             }}>
               {
                 getComponent(preview(getComponent))
@@ -154,6 +153,7 @@ configureGetComponent()
             </div>
             <div className="function-editor" style={{
               width: '70%',
+              display: 'none',
             }}>
               {
                 getComponent({
@@ -210,7 +210,7 @@ configureGetComponent()
                     propName: 'onFieldChange',
                     sequence: [{
                       type: 'COMPONENT_EDITOR__UPDATE_FIELD',
-                      path: ['VIEW'],
+                      path: ['VIEW', 'view'],
                       data: {
                         $$WM__resolve: {
                           type: 'fn',
@@ -229,7 +229,7 @@ configureGetComponent()
                           }, {
                             $$WM__resolve: {
                               type: 'state',
-                              path: ['VIEW'],
+                              path: ['VIEW', 'view'],
                             },
                           }],
                         },
