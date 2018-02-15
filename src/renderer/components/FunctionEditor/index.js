@@ -14,6 +14,8 @@ import CurlyBracketRight from './CurlyBracketRight';
 import ParenthesisTonde from './ParenthesisTonde';
 import LeftParenthesis from './LeftParenthesis';
 import RightParenthesis from './RightParenthesis';
+import LeftSquareBracket from './LeftSquareBracket';
+import RightSquareBracket from './RightSquareBracket';
 import ResolverEditor from './ResolverEditor';
 
 const treeUtils = new TreeUtils(null, 'uuid', 'args');
@@ -85,8 +87,13 @@ function walkResolve(stack, cb) {
 function walk(stack, cb) {
 	function walker(node) {
 		let block = Object.assign({}, node);
-		if (node.args) {
-			block.args = _.map(node.args, walker);
+
+		if (typeof node === 'string') {
+			block = node;
+		} else {
+			if (node.args) {
+				block.args = _.map(node.args, walker);
+			}			
 		}
 
 		return cb(block);
@@ -149,6 +156,10 @@ class FunctionEditor extends Component {
 		// let resolveStack;
 
 		return walk(functionTree, (block) => {
+			if (typeof block === 'string') {
+				return block;
+			}
+
 			if (block.type === 'string') {
 				return block.name;
 			}
@@ -352,22 +363,42 @@ class FunctionEditor extends Component {
 							const isResolvedComputation = fn.get('uuid') === 'resolved-computation';
 
 							const argsContainOnlyLiterals = args.reduce((memo, arg) => (memo && arg.get('type') !== 'string'), true);
+							let argPartParts = null;
+							let argParts = [];
+							let argString = '';
 
 							if (hasArgs && !isResolvedComputation) {
-								const argParts = args.reduce((memo, arg) => {
+								argParts = args.reduce((memo, arg) => {
 									const name = arg.get('name');
 									const isString = arg.get('type') === 'string';
+									let value = isString ? `'${name}'` : name;
 
-									if (isString) {
-										memo.push(`'${name}'`);
-									} else {
-										memo.push(name);
-									}
+									{/*if (!isString && ( arg.get('type') === 'state' || arg.get('type') === 'fn')) {
+										const treeArg = arg.toJS();
+										if (arg.get('type') === 'state' && treeArg.path.length > treeArg.args.length)  {
+											treeArg.args = treeArg.path;
+										}
+										
+										if (treeArg.args.length) {
+
+											const resolveArg = this.writeUIGenTree(treeArg);
+											const resolvedArg = JSON.stringify( resolver(resolveArg)({state, args: [] }) );
+
+											console.log(resolveArg, resolvedArg);
+
+											value = `'${resolvedArg}'`;
+										}*
+									}*/}
+
+									memo.push(value);
 									return memo;
 								}, []);
 
-								const argString = argParts.join(',');
-								name += `(${argString})`;
+								argString = argParts.join(',');
+								argPartParts = argParts.map(part => (
+									<tspan x="10" dy="1.2em">{part}</tspan>
+								));
+								{/*name += `(${argString})`;*/}
 							}
 
 							return (
@@ -376,33 +407,43 @@ class FunctionEditor extends Component {
 									onMouseUp={(e) => { this.handleMouseUpOnNode(e, { args, name, isResolvedComputation, uuid: fnPosition.uuid, type: fn.get('type') })}}
 								>
 									{!isResolvedComputation && (
-										<circle r="30" fill="white" stroke={fnPosition.color} strokeWidth="2px" />
+										<g transform="translate(-20, -25)">
+											<rect x="-55" y="2" width="95" height="47" fill="white" />
+											<LeftSquareBracket transform="scale(.5) translate(-125, 0)" stroke="none" fill={fnPosition.color} />
+											<RightSquareBracket transform="scale(.5) translate(55, 0)" stroke="none" fill={fnPosition.color} />
+											{/*<circle r="28" fill="white" stroke={fnPosition.color} strokeWidth="2px" />*/}
+											<text style={{
+												textAnchor: 'start',
+												fontFamily: 'monospace',
+												fontSize: '11px',
+												stroke: 'none',
+												fill: '#000000',
+											}} transform="translate(-50, 0)">
+												<tspan x="0" dy="1.2em">{name}{!argPartParts ? '()' : '('}</tspan>
+												{argPartParts}
+												<tspan x="0" dy="1.2em">{argPartParts ? ')' : ''}</tspan>
+											</text>
+										</g>
 									)}
 									{isResolvedComputation && (
 										<g transform="scale(.2)">
 											<g transform="translate(0, -100)">
 												<CurlyBracketLeft fill="#004499" />
 											</g>
-											<g transform="translate(200, -100)">
+											<g transform={`translate(100, -50) scale(5)`}>
+												<text style={{
+													textAnchor: 'start',
+													fontFamily: 'monospace',
+													fontSize: '11px',
+													stroke: '#000000',
+													fill: 'white',
+												}} >
+													<tspan x="0" dy="1.2em">{name}</tspan>
+												</text>
+											</g>
+											<g transform={`translate(${name && (name.length * 50) || 50}, -100)`}>
 												<CurlyBracketRight fill="#004499" />
 											</g>
-										</g>
-									)}
-									<text style={{
-										textAnchor: !isResolvedComputation ? 'end' : 'start',
-										fontFamily: 'monospace',
-										fontSize: '11px',
-									}} y="-40">
-										{name}
-									</text>
-									{hasArgs && !isResolvedComputation && (
-										<g>
-											<circle r="4.5" fill={fnPosition.color} />
-										</g>
-									)}
-									{!hasArgs && !isResolvedComputation && (
-										<g>
-											<circle r="1.5" fill={fnPosition.color} />
 										</g>
 									)}
 								</g>
@@ -411,6 +452,8 @@ class FunctionEditor extends Component {
 					}
 					{
 						functionLinks.reverse().map((link, i) => {
+							return null;
+
 							if (link.target.data.uuid === '__' || link.source.data.uuid === 'resolved-computation') {
 								return null;
 							}
