@@ -187,10 +187,33 @@ class FunctionEditor extends Component {
 		});
 	}
 
-	assignColor(positions) {
+	assignColor = (positions, overNode) => {
+		let overChildNodesSeq = [];
+		let overChildNodes = [];
+
+		if (overNode) {
+			overChildNodesSeq =	treeUtils.childNodes(this.state.functionTree, overNode);
+			overChildNodes = overChildNodesSeq.map(seq => this.state.functionTree.getIn(seq));
+		}
+
 		return positions.map((position, i) => {
+			let positionOpacity = 1;
+
+			// if (overChildNodes && overChildNodes.find(n => n.get('uuid') === position.uuid)) {
+			// 	positionOpacity = .1;
+			// }
+			
+			if (overNode && overNode !== position.uuid) {
+				positionOpacity = .1;
+			}
+
+			// if (this.state && this.state.over && this.state.over === position.uuid) {
+			// 	let childNodeSeq = treeUtils.childNodes(this.state.functionTree, this.state.over);
+				
+			// }
 			// const c = color((i+1) * 40);
 			position.color = color(i);
+			position.opacity = positionOpacity;
 			return position;
 		});
 	}
@@ -313,6 +336,26 @@ class FunctionEditor extends Component {
 		})
 	}
 
+	handleMouseOver = (e, { uuid }) => {
+		// this isnt quite what I wanted
+		// return;
+		console.log(`over ${uuid}`);
+		this.setState({
+			over: uuid,
+			functionPositions: this.assignColor(this.state.functionPositions, uuid),
+		});
+	}
+
+	handleMouseOut = (e, { uuid }) => {
+		// this isnt quite what I wanted
+		// return;
+		console.log(`out of ${uuid}`);
+		this.setState({
+			over: null,
+			functionPositions: this.assignColor(this.state.functionPositions, null),
+		});
+	}	
+
 	render() {
 		const {
 			functionPositions,
@@ -323,6 +366,7 @@ class FunctionEditor extends Component {
 			editorParams,
 			functionTreeAsNodes,
 			argColors,
+			over,
 		} = this.state;
 		let resolveDataJson = {};
 
@@ -367,10 +411,19 @@ class FunctionEditor extends Component {
 							let sourceTop = source.position.top;
 							let targetLeft = target.position.left;
 							let targetTop = target.position.top;
+							let pathColor = target.color;
+							let pathOpacity = 1;
+
+							if (over && (over !== source.uuid || over === target.uuid)) {
+								pathOpacity = .1;
+							}
 
 							return (
 							<path
-								stroke={target.color}
+								style={{
+									opacity: pathOpacity,
+								}}
+								stroke={pathColor}
 								strokeWidth="2px"
 								d={ `M${sourceLeft},${sourceTop} L ${targetLeft} ${targetTop}` } />
 							);
@@ -421,8 +474,8 @@ class FunctionEditor extends Component {
 								}, []);
 
 								argString = argParts.join(',');
-								if (argString.length > 20) {
-									argString = argString.substring(0, 18) + '…';
+								if (argString.length > 15) {
+									argString = argString.substring(0, 15) + '…';
 								}
 
 							}
@@ -431,6 +484,8 @@ class FunctionEditor extends Component {
 								<g transform={`translate(${fnPosition.position.left}, ${fnPosition.position.top})`}
 									onMouseDown={(e) => { this.handleMouseDownOnNode(e, { args, name, uuid: fnPosition.uuid, type: fn.get('type') }) }}
 									onMouseUp={(e) => { this.handleMouseUpOnNode(e, { args, name, isResolvedComputation, uuid: fnPosition.uuid, type: fn.get('type') })}}
+									onMouseOver={(e) => { this.handleMouseOver(e, {uuid: fnPosition.uuid} ) }}
+									onMouseOut={(e) => { this.handleMouseOut(e, {uuid: fnPosition.uuid} ) }}
 								>
 									<text style={{
 										textAnchor: argString.length > 10 ? 'middle' : 'start',
@@ -441,7 +496,7 @@ class FunctionEditor extends Component {
 									}} transform="translate(-50, -50)">
 										<tspan x="0" dy="1.2em">{name}{!argString ? '' : `(${argString})`}</tspan>
 									</text>
-									<circle r={5 + argParts.length * 5} fill={fnPosition.color} />
+									<circle r={5 + argParts.length * 5} fill={fnPosition.color} style={{opacity: fnPosition.opacity}} />
 								</g>
 							);
 						})
