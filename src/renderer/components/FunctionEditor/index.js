@@ -109,8 +109,6 @@ function walk(stack, cb) {
 
 var color = scaleOrdinal(schemeDark2);
 
-console.log(color(0), color(1), color(2));
-
 /*
  This is really a ResolverEditor(Tree), it visualizes a resolve composition
  */
@@ -199,19 +197,10 @@ class FunctionEditor extends Component {
 		return positions.map((position, i) => {
 			let positionOpacity = 1;
 
-			// if (overChildNodes && overChildNodes.find(n => n.get('uuid') === position.uuid)) {
-			// 	positionOpacity = .1;
-			// }
-			
 			if (overNode && overNode !== position.uuid) {
 				positionOpacity = .1;
 			}
 
-			// if (this.state && this.state.over && this.state.over === position.uuid) {
-			// 	let childNodeSeq = treeUtils.childNodes(this.state.functionTree, this.state.over);
-				
-			// }
-			// const c = color((i+1) * 40);
 			position.color = color(i);
 			position.opacity = positionOpacity;
 			return position;
@@ -287,8 +276,34 @@ class FunctionEditor extends Component {
 		this._dragFrom.args = this._dragFrom.args.toJS();
 	}
 
+	handleMouseMove = (e) => {
+		const translateX = 500;
+		const translateY = 500;
+
+		if (this._dragFrom) {
+			const container = document.getElementById('function-editor');
+			this.setState({
+				dragToPosition: {
+					x: (e.clientX - container.offsetLeft) - translateX,
+					y: (e.clientY) - translateY,
+				}
+			})
+		}
+	}
+
+	handleMouseUpOnCanvas = (e) => {
+		this._dragFrom = {};
+		this.setState({
+			dragPosition: null,
+		});
+	}
+
 	handleMouseUpOnNode = (e, params) => {
 		this.stopPropOfEditor = true;
+		this.setState({
+			dragToPosition: null,
+		});
+
 		if (this._dragFrom.uuid !== params.uuid) {
 			const dragFrom = this._dragFrom;
 			// Drag from node
@@ -317,8 +332,6 @@ class FunctionEditor extends Component {
 				});
 			}
 		}
-		
-		// console.log('handleMouseUpOnNode', e, params);
 	}
 
 	handleRemoveArg = (params, arg) => {
@@ -338,7 +351,7 @@ class FunctionEditor extends Component {
 
 	handleMouseOver = (e, { uuid }) => {
 		// this isnt quite what I wanted
-		// return;
+		return;
 		console.log(`over ${uuid}`);
 		this.setState({
 			over: uuid,
@@ -348,7 +361,7 @@ class FunctionEditor extends Component {
 
 	handleMouseOut = (e, { uuid }) => {
 		// this isnt quite what I wanted
-		// return;
+		return;
 		console.log(`out of ${uuid}`);
 		this.setState({
 			over: null,
@@ -376,7 +389,7 @@ class FunctionEditor extends Component {
 			resolveDataJson = resolveData.toJS();
 		}
 
-		return <div style={{ position: 'relative' }} id="function-editor">
+		return <div onMouseUp={this.handleMouseUpOnCanvas} onMouseMove={this.handleMouseMove} style={{ position: 'relative' }} id="function-editor">
 			{showEditor && (
 				<ResolverEditor style={{
 					left: position.x,
@@ -389,7 +402,8 @@ class FunctionEditor extends Component {
 					onRemoveArg={(arg) => this.handleRemoveArg(resolveDataJson, arg)}
 				/>
 			)}
-			<svg width="1000" height="600" onClick={(e) => {
+			<svg 
+				width="1000" height="600" onClick={(e) => {
 				if (!this.stopPropOfEditor) {
 					this.showResolverEditor(e, null);
 				}
@@ -454,19 +468,23 @@ class FunctionEditor extends Component {
 									const isString = arg.get('type') === 'string';
 									let value = isString ? `'${name}'` : name;
 
-									if (!isString && ( arg.get('type') === 'state' || arg.get('type') === 'fn')) {
-										const treeArg = arg.toJS();
-										if (arg.get('type') === 'state' && treeArg.path.length > treeArg.args.length)  {
-											treeArg.args = treeArg.path;
-										}
-										
-										if (treeArg.args.length) {
+									try {
+										if (!isString && ( arg.get('type') === 'state' || arg.get('type') === 'fn')) {
+											const treeArg = arg.toJS();
+											if (arg.get('type') === 'state' && treeArg.path.length > treeArg.args.length)  {
+												treeArg.args = treeArg.path;
+											}
+											
+											if (treeArg.args.length) {
 
-											const resolveArg = this.writeUIGenTree(treeArg);
-											const resolvedArg = JSON.stringify( resolver(resolveArg)({state, args: [] }) );
+												const resolveArg = this.writeUIGenTree(treeArg);
+												const resolvedArg = JSON.stringify( resolver(resolveArg)({state, args: [] }) );
 
-											value = `'${resolvedArg}'`;
-										}
+												value = `'${resolvedArg}'`;
+											}
+										}										
+									} catch (e) {
+										console.warn('Failed to resolve stuff', e.message);
 									}
 
 									memo.push(value);
@@ -530,6 +548,26 @@ class FunctionEditor extends Component {
 								d={ arc } />
 							);
 						})
+					}
+					{this.state.dragToPosition && (() => {
+						const fn = this.state.functionPositions.find(n => n.uuid === this._dragFrom.uuid);
+
+						if (!fn) {
+							{/*console.log('no fn', this._dragFrom);*/}
+							return null;
+						}
+
+						const sourceLeft = fn.position.left;
+						const sourceTop = fn.position.top;
+						const targetLeft = this.state.dragToPosition.x;
+						const targetTop = this.state.dragToPosition.y - 10;
+
+						return (<path
+							stroke="#cc9900"
+							strokeWidth="2px"
+							d={ `M${sourceLeft},${sourceTop} L ${targetLeft} ${targetTop}` } />
+						);
+						})()
 					}
 				</g>
 			</svg>
