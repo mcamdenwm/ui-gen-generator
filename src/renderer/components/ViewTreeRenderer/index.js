@@ -29,12 +29,12 @@ const ListContainer = (props) => {
 
 class ViewTreeRenderer extends Component {
 	renderItems = (children) => {
-		return children.map((child) => {
+		return children.map((child, i) => {
 			if (!child) {
 				return (<span />);
 			}
 			return (
-				<li>
+				<li key={i}>
 					<WMText>
 						{child.type}
 					</WMText>
@@ -48,7 +48,6 @@ class ViewTreeRenderer extends Component {
 		});
 	}
 	render() {
-		console.log(this.props.tree);
 		return (
 			<ListContainer>
 				{this.renderItems([this.props.tree])}

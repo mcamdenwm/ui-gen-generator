@@ -5,47 +5,19 @@ import _ from 'lodash';
 import { fromJS, Map, List } from 'immutable';
 import TreeUtils from 'immutable-treeutils';
 import { hierarchy } from 'd3-hierarchy';
-import { makeLib } from '@workmarket/ui-generation/dist-es/data/resolveFunctions';
-import { getResolver, executor } from '@workmarket/ui-generation/dist-es/data';
+import { getResolver } from '@workmarket/ui-generation/dist-es/data';
 import { scaleLinear, scaleOrdinal } from 'd3-scale';
 import { schemeDark2 } from 'd3-scale-chromatic';
+const uuid = require('uuid/v4');
 
-import CurlyBracketLeft from './CurlyBracketLeft';
-import CurlyBracketRight from './CurlyBracketRight';
-import ParenthesisTonde from './ParenthesisTonde';
-import LeftParenthesis from './LeftParenthesis';
-import RightParenthesis from './RightParenthesis';
-import LeftSquareBracket from './LeftSquareBracket';
-import RightSquareBracket from './RightSquareBracket';
-import ResolverEditor from './ResolverEditor';
+import { writeUIGenTree } from '../../utils';
+import { RESOLVE } from '../../constants';
+
+import ResolveParamsEditor from './ResolveParamsEditor';
+import ResolveNode from './ResolveNode';
+import ResolveLink from './ResolveLink';
 
 const treeUtils = new TreeUtils(null, 'uuid', 'args');
-
-const RESOLVE = '$$WM__resolve';
-
-function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
-  var angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
-
-  return {
-    x: centerX + (radius * Math.cos(angleInRadians)),
-    y: centerY + (radius * Math.sin(angleInRadians))
-  };
-}
-
-function describeArc(x, y, radius, startAngle, endAngle){
-
-    var start = polarToCartesian(x, y, radius, endAngle);
-    var end = polarToCartesian(x, y, radius, startAngle);
-
-    var largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
-
-    var d = [
-        "M", start.x, start.y, 
-        "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y
-    ].join(" ");
-
-    return d;       
-}
 
 const state = {
 	FOO: fromJS({
@@ -85,35 +57,9 @@ function walkResolve(stack, cb) {
 	return walker(stack);
 }
 
-function walk(stack, cb) {
-	function walker(node) {
-		let block = Object.assign({}, node);
-
-		if (typeof node === 'string') {
-			block = node;
-		} else {
-			if (node.args) {
-				block.args = _.map(node.args, walker);
-			}			
-		}
-
-		return cb(block);
-	}
-
-	return walker(stack, cb);
-}
-
-// var color = scaleLinear()
-//     .domain([1, 60])
-//     .range(["green", "steelblue"]);
-
 var color = scaleOrdinal(schemeDark2);
 
-/*
- This is really a ResolverEditor(Tree), it visualizes a resolve composition
- */
-
-class FunctionEditor extends Component {
+class ResolveTreeEditor extends Component {
 	state: {}
 	componentWillMount() {
 		this.props.functions && this.setFunctions(this.props.functions, this.props.functionPositions);
@@ -134,10 +80,10 @@ class FunctionEditor extends Component {
 			uuid: 'resolved-computation',
 		};
 
-		const functionTree = fromJS(resolvedTreeWithComputation);
-		const functionLinks = hierarchy(resolvedTreeWithComputation, d => d.args).links();
+		const functionTree = fromJS(resolvedTree);
+		const functionLinks = hierarchy(resolvedTree, d => d.args).links();
 
-		let finalSegment = functionPositions.find(f => f.uuid === resolvedTreeWithComputation.args[0].uuid);
+		let finalSegment = functionPositions.find(f => f.uuid === resolvedTree.args[0].uuid);
 
 		let rootPosition = {
 			uuid: 'resolved-computation',
@@ -150,7 +96,8 @@ class FunctionEditor extends Component {
 		const functionTreeAsNodes = treeUtils.nodes(functionTree).map(path => functionTree.getIn(path));
 		return {
 			functions: parsedFns,
-			functionPositions: this.assignColor(functionPositions.concat(rootPosition)),
+			// functionPositions: this.assignColor(functionPositions.concat(rootPosition)),
+			functionPositions: this.assignColor(functionPositions),
 			functionTree,
 			functionLinks,
 			functionTreeAsNodes,
@@ -158,31 +105,6 @@ class FunctionEditor extends Component {
 	}
 	setFunctions(functions, functionPositions) {
 		this.setState(this.generateState(functions, functionPositions));
-	}
-
-	writeUIGenTree(functionTree) {
-		// let resolveStack;
-
-		return walk(functionTree, (block) => {
-			if (typeof block === 'string') {
-				return block;
-			}
-
-			if (block.type === 'string') {
-				return block.name;
-			}
-
-			if (block.type === 'state') {
-				block.path = block.args;
-				delete block.args;
-			}
-
-			return {
-				$$WM__resolve: {
-					...block,
-				},
-			};
-		});
 	}
 
 	assignColor = (positions, overNode) => {
@@ -207,13 +129,13 @@ class FunctionEditor extends Component {
 		});
 	}
 
-	showResolverEditor = (e, params) => {
+	showResolveParamsEditor = (e, params) => {
 		const container = document.getElementById('function-editor');
 
 		// links are the args of the fn, so we can extract the arg color from the links
 		const argColors = this.state.functionLinks.filter(link => link.source.data.uuid === params && params.uuid)
 			.reduce((memo, link) => {
-				if (link.target.data.uuid === '__') {
+				if (link.target.data.type === 'string') {
 					return null;
 				}
 				const target = this.state.functionPositions.find(n => n.uuid === link.target.data.uuid);
@@ -225,7 +147,7 @@ class FunctionEditor extends Component {
 			}, {});
 		
 		const newNode = {
-			uuid: 'new',
+			uuid: uuid(),
 			name: 'state',
 			args: fromJS([
 				{type: 'string', name: 'FOO'},
@@ -247,7 +169,7 @@ class FunctionEditor extends Component {
 					left: (e.clientX - container.offsetLeft) - translateX,
 					top: (e.clientY) - translateY,
 				},
-				uuid: 'new',
+				uuid: uuid(),
 			});
 
 			newFunctionTreeAsNodes = newFunctionTreeAsNodes.push(fromJS(newNode));
@@ -327,10 +249,28 @@ class FunctionEditor extends Component {
 			if(!params.isResolvedComputation) {
 				e.preventDefault();
 				e.stopPropagation();
-				this.showResolverEditor(e, {
+				this.showResolveParamsEditor(e, {
 					uuid: params.uuid
 				});
 			}
+		}
+	}
+
+	handleAddArgToNode = (uuid) => {
+		const dragFrom = this._dragFrom;
+		if (!dragFrom) {
+			return;
+		}
+
+		// Add this as arg to another node
+		let resolveSeq = treeUtils.byId(this.state.functionTree, params.uuid)
+		let resolverTree;
+		if (resolveSeq.size) {
+			let resolverTree = this.state.functionTree.updateIn(resolveSeq.concat('args'), args => args.push(dragFrom))
+			
+			const uiGenTree = this.writeUIGenTree(resolverTree.toJS().args[0]);
+
+			this.setFunctions(uiGenTree, this.state.functionPositions);
 		}
 	}
 
@@ -391,7 +331,7 @@ class FunctionEditor extends Component {
 
 		return <div onMouseUp={this.handleMouseUpOnCanvas} onMouseMove={this.handleMouseMove} style={{ position: 'relative' }} id="function-editor">
 			{showEditor && (
-				<ResolverEditor style={{
+				<ResolveParamsEditor style={{
 					left: position.x,
 					top: position.y,
 				}}
@@ -403,19 +343,23 @@ class FunctionEditor extends Component {
 				/>
 			)}
 			<svg 
-				width="1000" height="600" onClick={(e) => {
-				if (!this.stopPropOfEditor) {
-					this.showResolverEditor(e, null);
-				}
-				this.stopPropOfEditor = false;
-			} } style={{
-				userSelect: 'none',
-				background: `rgb(41, 45, 62)`,
-			}}>
+				width="1000"
+				height="600"
+				onClick={(e) => {
+					if (!this.stopPropOfEditor) {
+						this.showResolveParamsEditor(e, null);
+					}
+					this.stopPropOfEditor = false;
+				}}
+				style={{
+					userSelect: 'none',
+					background: `rgb(41, 45, 62)`,
+				}}
+			>
 				<g transform="translate(500, 500)">
 					{
 						functionLinks.map((link, i) => {
-							if (link.target.data.uuid === '__') {
+							if (link.target.data.type === 'string') {
 								return null;
 							}
 							const target = functionPositions.find(n => n.uuid === link.target.data.uuid);
@@ -433,119 +377,31 @@ class FunctionEditor extends Component {
 							}
 
 							return (
-							<path
-								style={{
-									opacity: pathOpacity,
-								}}
-								stroke={pathColor}
-								strokeWidth="2px"
-								d={ `M${sourceLeft},${sourceTop} L ${targetLeft} ${targetTop}` } />
+								<ResolveLink
+									key={i}
+									color={pathColor}
+									opacity={pathOpacity}
+									sourceLeft={sourceLeft}
+									sourceTop={sourceTop}
+									targetLeft={targetLeft}
+									targetTop={targetTop}
+								/>
 							);
 						})
 					}
 					{
-						functionPositions.map((fnPosition, i) => {
-							const fn = functionTreeAsNodes.find((n) => {
-								return n.get('uuid') === fnPosition.uuid
+						functionPositions.map((position, i) => {
+							const block = functionTreeAsNodes.find((n) => {
+								return n.get('uuid') === position.uuid
 							});
-							if (!fn) {
-								console.error('Cant find fnPosition', fnPosition);
-								return;
-							}
-							const args = fn.get('args');
-							const hasArgs = args && args.size;
-							let name = fn.get('name');
-							const isResolvedComputation = fn.get('uuid') === 'resolved-computation';
 
-							const argsContainOnlyLiterals = args.reduce((memo, arg) => (memo && arg.get('type') !== 'string'), true);
-							let argPartParts = null;
-							let argParts = [];
-							let argString = '';
-
-							if (hasArgs && !isResolvedComputation) {
-								argParts = args.reduce((memo, arg) => {
-									const name = arg.get('name');
-									const isString = arg.get('type') === 'string';
-									let value = isString ? `'${name}'` : name;
-
-									try {
-										if (!isString && ( arg.get('type') === 'state' || arg.get('type') === 'fn')) {
-											const treeArg = arg.toJS();
-											if (arg.get('type') === 'state' && treeArg.path.length > treeArg.args.length)  {
-												treeArg.args = treeArg.path;
-											}
-											
-											if (treeArg.args.length) {
-
-												const resolveArg = this.writeUIGenTree(treeArg);
-												const resolvedArg = JSON.stringify( resolver(resolveArg)({state, args: [] }) );
-
-												value = `'${resolvedArg}'`;
-											}
-										}										
-									} catch (e) {
-										console.warn('Failed to resolve stuff', e.message);
-									}
-
-									memo.push(value);
-									return memo;
-								}, []);
-
-								argString = argParts.join(',');
-								if (argString.length > 15) {
-									argString = argString.substring(0, 15) + '…';
-								}
-
-							}
-
-							return (
-								<g transform={`translate(${fnPosition.position.left}, ${fnPosition.position.top})`}
-									onMouseDown={(e) => { this.handleMouseDownOnNode(e, { args, name, uuid: fnPosition.uuid, type: fn.get('type') }) }}
-									onMouseUp={(e) => { this.handleMouseUpOnNode(e, { args, name, isResolvedComputation, uuid: fnPosition.uuid, type: fn.get('type') })}}
-									onMouseOver={(e) => { this.handleMouseOver(e, {uuid: fnPosition.uuid} ) }}
-									onMouseOut={(e) => { this.handleMouseOut(e, {uuid: fnPosition.uuid} ) }}
-								>
-									<text style={{
-										textAnchor: argString.length > 10 ? 'middle' : 'start',
-										fontFamily: 'monospace',
-										fontSize: '12px',
-										stroke: fnPosition.color,
-										fill: fnPosition.color,
-									}} transform="translate(-50, -50)">
-										<tspan x="0" dy="1.2em">{name}{!argString ? '' : `(${argString})`}</tspan>
-									</text>
-									<circle r={5 + argParts.length * 5} fill={fnPosition.color} style={{opacity: fnPosition.opacity}} />
-								</g>
-							);
-						})
-					}
-					{
-						functionLinks.reverse().map((link, i) => {
-							return null;
-
-							if (link.target.data.uuid === '__' || link.source.data.uuid === 'resolved-computation') {
+							if (!block) {
+								console.error('Cant find block with ', position);
 								return null;
 							}
-							const target = functionPositions.find(n => n.uuid === link.target.data.uuid);
-							const source = functionPositions.find(n => n.uuid === link.source.data.uuid);
-
-							let sourceLeft = source.position.left;
-							let sourceTop = source.position.top;
-							{/*let targetLeft = target.position.left;*/}
-							{/*let targetTop = target.position.top;*/}
-							const degreesPerArc = 360 / functionLinks.length;
-							const offsetAngle = 50;
-							const startAngle = (i*degreesPerArc) + offsetAngle;
-							const endAngle = ((i*degreesPerArc) + degreesPerArc) + offsetAngle;
-
-							const arc = describeArc(sourceLeft, sourceTop, 30, startAngle, endAngle);
 
 							return (
-							<path
-								stroke={target.color}
-								strokeWidth="2px"
-								fill="none"
-								d={ arc } />
+								<ResolveNode key={i} block={block} position={position} index={i} />
 							);
 						})
 					}
@@ -575,4 +431,4 @@ class FunctionEditor extends Component {
 	}
 }
 
-export default FunctionEditor;
+export default ResolveTreeEditor;

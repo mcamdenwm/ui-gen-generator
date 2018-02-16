@@ -1,5 +1,0 @@
-import React from 'react';
-//https://upload.wikimedia.org/wikipedia/commons/8/8e/Left_parenthesis.svg
-export default (props) => {
-	return <path {...props} xmlns="http://www.w3.org/2000/svg" d="M 24.848855,20.000001 C 24.848855,8.6743841 32.085969,3.4617231 30.466166,1.8777421 C 28.104824,-0.13786592 18.952671,9.5056351 18.952671,20.000001 C 18.952671,30.494363 28.104824,40.137861 30.466166,38.122258 C 32.085969,36.53828 24.848855,31.325615 24.848855,20.000001 z " />
-};

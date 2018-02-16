@@ -61,7 +61,7 @@ class ComponentEditor extends Component {
 							}
 
 							return (
-								<div>
+								<div key={key}>
 									<Field
 										name={key}
 										label={key}

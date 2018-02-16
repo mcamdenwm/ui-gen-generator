@@ -1,0 +1,1 @@
+export const RESOLVE = '$$WM__resolve';

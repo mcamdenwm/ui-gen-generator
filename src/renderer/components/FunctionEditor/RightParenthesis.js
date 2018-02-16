@@ -1,5 +1,0 @@
-import React from 'react';
-//https://upload.wikimedia.org/wikipedia/commons/3/33/Right_parenthesis.svg
-export default (props) => {
-	return <path {...props} xmlns="http://www.w3.org/2000/svg" d="M 15.151145,20.000001 C 15.151145,8.6743841 7.914031,3.4617231 9.533834,1.8777421 C 11.895176,-0.13786592 21.047329,9.5056351 21.047329,20.000001 C 21.047329,30.494363 11.895176,40.137861 9.533834,38.122258 C 7.914031,36.53828 15.151145,31.325615 15.151145,20.000001 z " />
-};

@@ -9,7 +9,7 @@ const style = {
 	background: '#fff',
 };
 
-class ResolverEditor extends Component {
+class ResolveParamsEditor extends Component {
 	componentWillMount() {
 		this.transferPropsToState(this.props);
 	}
@@ -85,4 +85,4 @@ class ResolverEditor extends Component {
 	}
 }
 
-export default ResolverEditor;
+export default ResolveParamsEditor;
