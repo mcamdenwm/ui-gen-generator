@@ -7,7 +7,8 @@ import TreeUtils from 'immutable-treeutils';
 import { hierarchy } from 'd3-hierarchy';
 import { makeLib } from '@workmarket/ui-generation/dist-es/data/resolveFunctions';
 import { getResolver, executor } from '@workmarket/ui-generation/dist-es/data';
-import { scaleLinear } from 'd3-scale';
+import { scaleLinear, scaleOrdinal } from 'd3-scale';
+import { schemeDark2 } from 'd3-scale-chromatic';
 
 import CurlyBracketLeft from './CurlyBracketLeft';
 import CurlyBracketRight from './CurlyBracketRight';
@@ -102,9 +103,13 @@ function walk(stack, cb) {
 	return walker(stack, cb);
 }
 
-var color = scaleLinear()
-    .domain([1, 60])
-    .range(["green", "steelblue"]);
+// var color = scaleLinear()
+//     .domain([1, 60])
+//     .range(["green", "steelblue"]);
+
+var color = scaleOrdinal(schemeDark2);
+
+console.log(color(0), color(1), color(2));
 
 /*
  This is really a ResolverEditor(Tree), it visualizes a resolve composition
@@ -118,8 +123,11 @@ class FunctionEditor extends Component {
 	componentWillReceiveProps(nextProps) {
 		nextProps.functions && this.setFunctions(nextProps.functions, nextProps.functionPositions);
 	}
-	setFunctions(functions, functionPositions) {
-		const parsedFns = JSON.parse(functions);
+	generateState(functions, functionPositions) {
+		let parsedFns = functions;
+		if (typeof functions === 'string') {
+			parsedFns = JSON.parse(functions);
+		}
 
 		const resolvedTree = walkResolve(parsedFns);
 		const resolvedTreeWithComputation = {
@@ -136,20 +144,22 @@ class FunctionEditor extends Component {
 		let rootPosition = {
 			uuid: 'resolved-computation',
 			position: {
-				left: 120 + finalSegment.position.left,
+				left: 200 + finalSegment.position.left,
 				top: finalSegment.position.top,
 			},
 		}
 
 		const functionTreeAsNodes = treeUtils.nodes(functionTree).map(path => functionTree.getIn(path));
-
-		this.setState({
+		return {
 			functions: parsedFns,
 			functionPositions: this.assignColor(functionPositions.concat(rootPosition)),
 			functionTree,
 			functionLinks,
 			functionTreeAsNodes,
-		});
+		};
+	}
+	setFunctions(functions, functionPositions) {
+		this.setState(this.generateState(functions, functionPositions));
 	}
 
 	writeUIGenTree(functionTree) {
@@ -179,8 +189,8 @@ class FunctionEditor extends Component {
 
 	assignColor(positions) {
 		return positions.map((position, i) => {
-			const c = color((i+1) * 40);
-			position.color = c;
+			// const c = color((i+1) * 40);
+			position.color = color(i);
 			return position;
 		});
 	}
@@ -268,9 +278,9 @@ class FunctionEditor extends Component {
 			if (resolveSeq.size) {
 				let resolverTree = this.state.functionTree.updateIn(resolveSeq.concat('args'), args => args.push(dragFrom))
 				
-				const uiGenTree = JSON.stringify(this.writeUIGenTree(resolverTree.toJS().args[0]));
+				const uiGenTree = this.writeUIGenTree(resolverTree.toJS().args[0]);
 
-				this.setFunctions(`${uiGenTree}`, this.state.functionPositions);
+				this.setFunctions(uiGenTree, this.state.functionPositions);
 			}
 
 			this._dragFrom = null;
@@ -279,7 +289,9 @@ class FunctionEditor extends Component {
 			if(!params.isResolvedComputation) {
 				e.preventDefault();
 				e.stopPropagation();
-				this.showResolverEditor(e, params);
+				this.showResolverEditor(e, {
+					uuid: params.uuid
+				});
 			}
 		}
 		
@@ -288,13 +300,17 @@ class FunctionEditor extends Component {
 
 	handleRemoveArg = (params, arg) => {
 		let argSeq = treeUtils.find(this.state.functionTree, n => n.get('uuid') === arg.uuid && n.get('name') === arg.name);
+		let fn = this.state.functionTree.getIn(argSeq);
 		let resolverTree = this.state.functionTree.removeIn(argSeq);
 		
-		const uiGenTree = JSON.stringify(this.writeUIGenTree(resolverTree.toJS().args[0]));
-		console.log(resolverTree.toJS().args[0]);
+		const uiGenTree = this.writeUIGenTree(resolverTree.toJS().args[0]);
+		const newState = this.generateState(uiGenTree, this.state.functionPositions);
 
-		this.setFunctions(`${uiGenTree}`, this.state.functionPositions);
-
+		this.setState({
+			...newState,
+			// Removing arg shouldnt remove node
+			functionTreeAsNodes: newState.functionTreeAsNodes.push(fn),
+		})
 	}
 
 	render() {
@@ -308,6 +324,13 @@ class FunctionEditor extends Component {
 			functionTreeAsNodes,
 			argColors,
 		} = this.state;
+		let resolveDataJson = {};
+
+		if (editorParams) {
+			// let resolveSeq = treeUtils.byId(this.state.functionTree, editorParams.uuid)
+			let resolveData = functionTreeAsNodes.find(n => n.get('uuid') === editorParams.uuid);
+			resolveDataJson = resolveData.toJS();
+		}
 
 		return <div style={{ position: 'relative' }} id="function-editor">
 			{showEditor && (
@@ -315,11 +338,11 @@ class FunctionEditor extends Component {
 					left: position.x,
 					top: position.y,
 				}}
-					type={editorParams.type}
-					args={editorParams.args && editorParams.args.toJS()}
+					type={resolveDataJson.type}
+					args={resolveDataJson.args}
 					argColors={argColors}
-					onSave={() => this.handleSave(editorParams)}
-					onRemoveArg={(arg) => this.handleRemoveArg(editorParams, arg)}
+					onSave={() => this.handleSave(resolveDataJson)}
+					onRemoveArg={(arg) => this.handleRemoveArg(resolveDataJson, arg)}
 				/>
 			)}
 			<svg width="1000" height="600" onClick={(e) => {
@@ -329,6 +352,7 @@ class FunctionEditor extends Component {
 				this.stopPropOfEditor = false;
 			} } style={{
 				userSelect: 'none',
+				background: `rgb(41, 45, 62)`,
 			}}>
 				<g transform="translate(500, 500)">
 					{
@@ -357,6 +381,10 @@ class FunctionEditor extends Component {
 							const fn = functionTreeAsNodes.find((n) => {
 								return n.get('uuid') === fnPosition.uuid
 							});
+							if (!fn) {
+								console.error('Cant find fnPosition', fnPosition);
+								return;
+							}
 							const args = fn.get('args');
 							const hasArgs = args && args.size;
 							let name = fn.get('name');
@@ -373,7 +401,7 @@ class FunctionEditor extends Component {
 									const isString = arg.get('type') === 'string';
 									let value = isString ? `'${name}'` : name;
 
-									{/*if (!isString && ( arg.get('type') === 'state' || arg.get('type') === 'fn')) {
+									if (!isString && ( arg.get('type') === 'state' || arg.get('type') === 'fn')) {
 										const treeArg = arg.toJS();
 										if (arg.get('type') === 'state' && treeArg.path.length > treeArg.args.length)  {
 											treeArg.args = treeArg.path;
@@ -384,21 +412,19 @@ class FunctionEditor extends Component {
 											const resolveArg = this.writeUIGenTree(treeArg);
 											const resolvedArg = JSON.stringify( resolver(resolveArg)({state, args: [] }) );
 
-											console.log(resolveArg, resolvedArg);
-
 											value = `'${resolvedArg}'`;
-										}*
-									}*/}
+										}
+									}
 
 									memo.push(value);
 									return memo;
 								}, []);
 
 								argString = argParts.join(',');
-								argPartParts = argParts.map(part => (
-									<tspan x="10" dy="1.2em">{part}</tspan>
-								));
-								{/*name += `(${argString})`;*/}
+								if (argString.length > 20) {
+									argString = argString.substring(0, 18) + '…';
+								}
+
 							}
 
 							return (
@@ -406,46 +432,16 @@ class FunctionEditor extends Component {
 									onMouseDown={(e) => { this.handleMouseDownOnNode(e, { args, name, uuid: fnPosition.uuid, type: fn.get('type') }) }}
 									onMouseUp={(e) => { this.handleMouseUpOnNode(e, { args, name, isResolvedComputation, uuid: fnPosition.uuid, type: fn.get('type') })}}
 								>
-									{!isResolvedComputation && (
-										<g transform="translate(-20, -25)">
-											<rect x="-55" y="2" width="95" height="47" fill="white" />
-											<LeftSquareBracket transform="scale(.5) translate(-125, 0)" stroke="none" fill={fnPosition.color} />
-											<RightSquareBracket transform="scale(.5) translate(55, 0)" stroke="none" fill={fnPosition.color} />
-											{/*<circle r="28" fill="white" stroke={fnPosition.color} strokeWidth="2px" />*/}
-											<text style={{
-												textAnchor: 'start',
-												fontFamily: 'monospace',
-												fontSize: '11px',
-												stroke: 'none',
-												fill: '#000000',
-											}} transform="translate(-50, 0)">
-												<tspan x="0" dy="1.2em">{name}{!argPartParts ? '()' : '('}</tspan>
-												{argPartParts}
-												<tspan x="0" dy="1.2em">{argPartParts ? ')' : ''}</tspan>
-											</text>
-										</g>
-									)}
-									{isResolvedComputation && (
-										<g transform="scale(.2)">
-											<g transform="translate(0, -100)">
-												<CurlyBracketLeft fill="#004499" />
-											</g>
-											<g transform={`translate(100, -50) scale(5)`}>
-												<text style={{
-													textAnchor: 'start',
-													fontFamily: 'monospace',
-													fontSize: '11px',
-													stroke: '#000000',
-													fill: 'white',
-												}} >
-													<tspan x="0" dy="1.2em">{name}</tspan>
-												</text>
-											</g>
-											<g transform={`translate(${name && (name.length * 50) || 50}, -100)`}>
-												<CurlyBracketRight fill="#004499" />
-											</g>
-										</g>
-									)}
+									<text style={{
+										textAnchor: argString.length > 10 ? 'middle' : 'start',
+										fontFamily: 'monospace',
+										fontSize: '12px',
+										stroke: fnPosition.color,
+										fill: fnPosition.color,
+									}} transform="translate(-50, -50)">
+										<tspan x="0" dy="1.2em">{name}{!argString ? '' : `(${argString})`}</tspan>
+									</text>
+									<circle r={5 + argParts.length * 5} fill={fnPosition.color} />
 								</g>
 							);
 						})

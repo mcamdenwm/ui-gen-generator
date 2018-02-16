@@ -18,6 +18,8 @@ class ResolverEditor extends Component {
 	}
 
 	transferPropsToState(props) {
+		console.log(props);
+
 		this.setState({
 			type: props.type,
 			args: props.args || [],
@@ -63,7 +65,7 @@ class ResolverEditor extends Component {
 				</div>
 				{
 					this.state.args.map((arg, i) => (
-						<div>
+						<div key={i}>
 							<span style={{
 								background: this.state.argColors[arg.uuid],
 								display: 'inline-block',

@@ -146,6 +146,7 @@ configureGetComponent()
             </div>
             <div className="preview" style={{
               width: '70%',
+              display: 'none',
             }}>
               {
                 getComponent(preview(getComponent))
@@ -153,7 +154,6 @@ configureGetComponent()
             </div>
             <div className="function-editor" style={{
               width: '70%',
-              display: 'none',
             }}>
               {
                 getComponent({

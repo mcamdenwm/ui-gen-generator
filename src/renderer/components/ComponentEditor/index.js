@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {
+	WMText,
 	WMTextField,
 	WMToggle,
 } from '@workmarket/front-end-components';
@@ -44,28 +45,49 @@ class ComponentEditor extends Component {
 	render() {
 		return (
 			<div style={{ overflow: 'auto', height: '100vh' }}>
-			 {
-				 	map((key) => {
-						const propType = this.state.componentPropTypes[key];
-						let Field = WMTextField;
+				<div style={{
+					width: '100%',
+				}}>
+					<WMText>
+						Props
+					</WMText>
+				 {
+					 	map((key) => {
+							const propType = this.state.componentPropTypes[key];
+							let Field = WMTextField;
 
-						if (propType.type === 'bool') {
-							Field = WMToggle;
-						}
+							if (propType.type === 'bool') {
+								Field = WMToggle;
+							}
 
-						return (
-							<div>
-								<Field
-									name={key}
-									label={key}
-									floatingLabelText={key}
-									value={this.props.component.getIn(['props', key])}
-									onChange={(e, value) => { this.props.onFieldChange({ [key]: value }) }}
-								/>
-							</div>
-						);
-					}, Object.keys(this.state.componentPropTypes))
-				}
+							return (
+								<div>
+									<Field
+										name={key}
+										label={key}
+										floatingLabelText={key}
+										value={this.props.component.getIn(['props', key])}
+										onChange={(e, value) => { this.props.onFieldChange({ [key]: value }) }}
+									/>
+								</div>
+							);
+						}, Object.keys(this.state.componentPropTypes).filter(key => this.props.component.getIn(['props', key])) )
+					}
+				</div>
+				<div style={{
+					width: '100%',
+				}}>
+					<WMText>
+						Selectors
+					</WMText>
+				</div>
+				<div style={{
+					width: '100%',
+				}}>
+					<WMText>
+						Actions
+					</WMText>
+				</div>
 			</div>
 		);
 	}
