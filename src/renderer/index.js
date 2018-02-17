@@ -11,7 +11,13 @@ import preview from './preview';
 
 injectTapEventPlugin();
 
-const state = db.get('state').value();
+let state = db.get('state').value();
+
+if (!state) {
+	console.log('State not found in DB');
+	state = {};
+}
+
 // let view = {};
 
 // if (state && state.view) {
@@ -33,7 +39,7 @@ configureGetComponent()
 						overflow: 'hidden',
 					}}>
 						<div className="initializer">
-							{
+{/*							{
 								getComponent({
 									type: 'WMGeneric',
 									actions: [{
@@ -45,7 +51,7 @@ configureGetComponent()
 										}]
 									}]
 								})
-							}
+							}*/}
 						</div>
 						<div className="view-tree" style={{
 							width: '15%',
@@ -81,20 +87,20 @@ configureGetComponent()
 								getComponent({
 									type: 'ResolveTreeEditor',
 									selectors: [{
-										propName: 'functions',
+										propName: 'resolveTrees',
 										data: {
 											$$WM__resolve: {
 												type: 'state',
-												path: ['VIEW', 'functions', 'fn1'],
+												path: ['VIEW', 'resolveTrees'],
 											},
 										},
 										toJS: true,
 									}, {
-										propName: 'functionPositions',
+										propName: 'resolveNodes',
 										data: {
 											$$WM__resolve: {
 												type: 'state',
-												path: ['VIEW', 'functionPositions', 'fn1'],
+												path: ['VIEW', 'resolveNodes'],
 											},
 										},
 										toJS: true,
@@ -129,7 +135,7 @@ configureGetComponent()
 							width: '15%',
 						}}>
 							{
-								getComponent({
+								getComponent({ 
 									type: 'ComponentEditor',
 									selectors: [{
 										propName: 'component',

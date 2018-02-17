@@ -1,11 +1,30 @@
 import React from 'react';
+import { fromJS } from 'immutable';
 import { writeUIGenTree, resolver } from '../../utils';
 
-export default ({ block, position, index }) => {
-	const args = block.get('args');
+export default ({ block, node, index }) => {
+	let args = block.get('args');
+	const path = block.get('path');
+
+	if (!args.size && path.size) {
+		args = path;
+	}
+
 	const hasArgs = args && args.size;
 	const argsContainOnlyLiterals = args.reduce((memo, arg) => (memo && arg.get('type') !== 'string'), true);
-	const blockName = block.get('name');
+	let blockName = block.get('name');
+
+	if (block.get('type') === 'state') {
+		blockName = 'state';
+	}
+
+	const state = {
+		FOO: fromJS({
+			bar: {
+				baz: 'This is, foo, bar, baz   ',
+			},
+		}),
+	};
 
 	let argParts = [];
 	let argString = '';
@@ -39,28 +58,28 @@ export default ({ block, position, index }) => {
 		}, []);
 
 		argString = argParts.join(',');
-		if (argString.length > 15) {
-			argString = argString.substring(0, 15) + '…';
+		if (argString.length > 10) {
+			argString = argString.substring(0, 10) + '…';
 		}
 	}
 
 	return (
-		<g transform={`translate(${position.position.left}, ${position.position.top})`}
-			onMouseDown={(e) => { this.handleMouseDownOnNode(e, { args, blockName, uuid: position.uuid, type: block.get('type') }) }}
-			onMouseUp={(e) => { this.handleMouseUpOnNode(e, { args, blockName, isResolvedComputation, uuid: position.uuid, type: block.get('type') })}}
-			onMouseOver={(e) => { this.handleMouseOver(e, {uuid: position.uuid} ) }}
-			onMouseOut={(e) => { this.handleMouseOut(e, {uuid: position.uuid} ) }}
+		<g transform={`translate(${node.getIn(['position','x'])}, ${node.getIn(['position','y'])})`}
+			onMouseDown={(e) => { this.handleMouseDownOnNode(e, { args, blockName, uuid: block.get('uuid'), type: block.get('type') }) }}
+			onMouseUp={(e) => { this.handleMouseUpOnNode(e, { args, blockName, isResolvedComputation, uuid: block.get('uuid'), type: block.get('type') })}}
+			onMouseOver={(e) => { this.handleMouseOver(e, {uuid: block.get('uuid')} ) }}
+			onMouseOut={(e) => { this.handleMouseOut(e, {uuid: block.get('uuid')} ) }}
 		>
 			<text style={{
 				textAnchor: argString.length > 10 ? 'middle' : 'start',
 				fontFamily: 'monospace',
 				fontSize: '12px',
-				stroke: position.color,
-				fill: position.color,
+				stroke: node.getIn(['color']),
+				fill: node.getIn(['color']),
 			}} transform="translate(-50, -50)">
 				<tspan x="0" dy="1.2em">{blockName}{!argString ? '' : `(${argString})`}</tspan>
 			</text>
-			<circle r={5 + argParts.length * 5} fill={position.color} style={{opacity: position.opacity}} />
+			<circle r={5 + argParts.length * 5} fill={node.getIn(['color'])} style={{opacity: node.getIn(['position','opacity'])}} />
 		</g>
 	);
 }

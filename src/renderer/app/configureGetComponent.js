@@ -54,9 +54,13 @@ export default async () => {
               return {};
             }
 
-            return state.getIn(
-              treeUtils.byId(state, uuid),
-            );
+            const seq = treeUtils.byId(state, uuid);
+            if (!seq) {
+              console.warn('Seq not found for ', uuid, state);
+              return {};
+            }
+
+            return state.getIn(seq);
           }
         },
         store,
