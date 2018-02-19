@@ -6,6 +6,8 @@ export default ({
 	block,
 	node,
 	index,
+	over,
+	overAny,
 	onMouseDown,
 	onMouseUp,
 	onMouseOver,
@@ -32,6 +34,7 @@ export default ({
 	const {
 		truncatedPath,
 		fullPath,
+		resolvedBlock,
 	} = blockNameRenderer(state, args, block);
 
 	return (
@@ -41,16 +44,37 @@ export default ({
 			onMouseOver={(e) => { onMouseOver(e, {uuid: block.get('uuid')} ) }}
 			onMouseOut={(e) => { onMouseOut(e, {uuid: block.get('uuid')} ) }}
 		>
-			<text style={{
-				textAnchor: truncatedPath.length > 10 ? 'middle' : 'start',
-				fontFamily: 'monospace',
-				fontSize: '12px',
-				stroke: node.getIn(['color']),
-				fill: node.getIn(['color']),
-			}} transform="translate(-50, -50)">
-				<tspan x="0" dy="1.2em">{truncatedPath}</tspan>
-			</text>
-			<circle r={10 + args.size * 5} fill={node.getIn(['color'])} style={{opacity: node.getIn(['position','opacity'])}} />
+			{ (!overAny || over) && (
+				<text style={{
+					textAnchor: truncatedPath.length > 10 ? 'middle' : 'start',
+					fontFamily: 'monospace',
+					fontSize: '12px',
+					stroke: node.getIn(['color']),
+					fill: node.getIn(['color']),
+				}} transform="translate(-50, -50)">
+					<tspan x="0" dy="1.2em">{over ? fullPath : truncatedPath}</tspan>
+				</text>
+			)}
+			<circle
+				r={10 + args.size * 5}
+				fill={node.getIn(['color'])}
+				style={{
+					opacity: overAny && !over ? .2 : 1,
+				}}
+			/>
+			{ over && (
+				<g transform="translate(0, 50)">
+					<text
+						style={{
+							textAnchor: 'middle',
+							fontFamily: 'monospace',
+							fontSize: '12px',
+							stroke: node.getIn(['color']),
+							fill: node.getIn(['color']),
+						}}
+					>{resolvedBlock}</text>
+				</g>
+			)}
 		</g>
 	);
 }

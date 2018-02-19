@@ -360,22 +360,14 @@ class ResolveTreeEditor extends Component {
 	}
 
 	handleMouseOver = (e, { uuid }) => {
-		// this isnt quite what I wanted
-		return;
-		console.log(`over ${uuid}`);
 		this.setState({
 			over: uuid,
-			resolveNodes: this.assignColor(this.state.resolveNodes, uuid),
 		});
 	}
 
 	handleMouseOut = (e, { uuid }) => {
-		// this isnt quite what I wanted
-		return;
-		console.log(`out of ${uuid}`);
 		this.setState({
 			over: null,
-			resolveNodes: this.assignColor(this.state.resolveNodes, null),
 		});
 	}	
 
@@ -492,6 +484,8 @@ class ResolveTreeEditor extends Component {
 									block={block}
 									node={node}
 									index={blockIndex}
+									over={over === block.get('uuid')}
+									overAny={!!over}
 									onMouseDown={this.handleMouseDownOnNode}
 									onMouseUp={this.handleMouseUpOnNode}
 									onMouseOver={this.handleMouseOver}

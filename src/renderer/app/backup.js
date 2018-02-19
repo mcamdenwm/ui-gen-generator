@@ -43,7 +43,7 @@ export default {
 						"type": "fn",
 						"name": "concat",
 						"args": [
-							"##"
+							"!"
 						]
 					}
 				}
@@ -73,8 +73,8 @@ export default {
 			"treeUuid": "a8d21da4-6aae-496d-a9e5-bb829b5588b8",
 			"operationUuid": "3311e4c3-a422-4771-ad31-0dce1fdda769",
 			"position": {
-				"x": 200,
-				"y": 200
+				"x": 500,
+				"y": 100
 			},
 			"color": "#7570b3"
 		}

@@ -137,9 +137,11 @@ class ResolveParamsEditor extends Component {
 				}
 				{
 					this.state.pathArgs.map((arg, i) => {
-						const {
-							fullPath,
-						} = blockNameRenderer(state, fromJS([arg]), fromJS(arg));
+						let fullPath = '';
+
+						if (arg.type !== 'string') {
+							fullPath = blockNameRenderer(state, fromJS([arg]), fromJS(arg));
+						}
 
 						let argName = arg.name;
 

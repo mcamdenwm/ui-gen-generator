@@ -48,9 +48,13 @@ export default (state, args, block) => {
 
 	const truncatedPath = `${blockName}${!argString ? '' : `(${argString})`}`;
 	const fullPath = `${blockName}${!argString ? '' : `(${argParts.join(',')})`}`;
+	
+	const resolveBlock = writeUIGenTree(block.toJS());
+	const resolvedBlock = JSON.stringify( resolver(resolveBlock)({state, args: [] }) );
 
 	return {
 		truncatedPath,
 		fullPath,
+		resolvedBlock,
 	};
 };
