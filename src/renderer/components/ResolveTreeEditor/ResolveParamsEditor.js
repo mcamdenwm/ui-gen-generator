@@ -40,9 +40,9 @@ class ResolveParamsEditor extends Component {
 	}
 
 	removeArg = (arg) => {
-		// this.setState({
-		// 	args: this.state.args.filter(a => a !== arg),
-		// });
+		this.setState({
+			pathArgs: this.state.pathArgs.filter(a => a.uuid !== arg.uuid),
+		});
 
 		this.props.onRemoveArg && this.props.onRemoveArg(arg);
 	}
@@ -58,15 +58,6 @@ class ResolveParamsEditor extends Component {
 	}
 
 	handleSave = () => {
-		// let args = {
-
-		// 	type: this.state.type,
-		// 	args: this.state.args,
-		// 	name: this.state.name,
-		// 	path: this.state.path,
-		// };
-		
-
 		if (!this.props.onSave) {
 			return;
 		}
@@ -93,7 +84,6 @@ class ResolveParamsEditor extends Component {
 	}
 
 	handleUpdateArg = (arg, value) => {
-
 		const mutPathArgs = this.state.pathArgs.map((pathArg, i) => {
 			if (pathArg.uuid !== arg.uuid) {
 				return pathArg;
@@ -108,6 +98,12 @@ class ResolveParamsEditor extends Component {
 		});
 	}
 
+	handleCancel = () => {
+		if (this.props.onCancel) {
+			this.props.onCancel();
+		}
+	}
+
 	render() {
 		const state = {
 			FOO: fromJS({
@@ -116,20 +112,7 @@ class ResolveParamsEditor extends Component {
 				},
 			}),
 		};
-		const {
-			name,
-			type,
-			uuid,
-		} = this.props;
 
-		const block = {
-			name,
-			type,
-			uuid,
-		};
-
-
-		console.log(this.state.name, this.state);
 		return (
 			<div
 				style={{
@@ -180,7 +163,9 @@ class ResolveParamsEditor extends Component {
 						)
 					})
 				}
-				<button onClick={this.addArg}>+</button> <button onClick={this.handleSave}>Save</button>
+				<div>
+					<button onClick={this.addArg}>+</button> <button onClick={this.handleSave}>Save</button> <button onClick={this.handleCancel}>Cancel</button> 
+				</div>
 			</div>
 		);
 	}

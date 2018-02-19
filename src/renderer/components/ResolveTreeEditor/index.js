@@ -195,7 +195,13 @@ class ResolveTreeEditor extends Component {
 		const parentTreeI = this.state.resolveTrees.findIndex(tree => treeUtils.byId(tree, params.uuid));
 		const seq = [parentTreeI].concat(treeUtils.byId(parentTree, params.uuid).toJS());
 
-		const mutatedTreeList = this.state.resolveTrees.updateIn(seq, () => fromJS(params));
+		let mutatedTreeList = this.state.resolveTrees.updateIn(seq, () => fromJS(params));
+
+		if (this._preservedTrees) {
+			mutatedTreeList = mutatedTreeList.concat(fromJS(this._preservedTrees));
+			this._preservedTrees = null;
+		}
+
 		const uiGenTreeList = mutatedTreeList.toJS().map(writeUIGenTree);
 		
 		// @todo tree should be a list of strings (resolves)
@@ -229,7 +235,7 @@ class ResolveTreeEditor extends Component {
 	}
 
 	handleMouseUpOnCanvas = (e) => {
-		if (e.target.id !== 'canvas') {
+		if (e.target.id !== 'canvas' || this.state.edit) {
 			return;
 		}
 
@@ -294,37 +300,6 @@ class ResolveTreeEditor extends Component {
 			dragToPosition: null,
 			edit: params.uuid,
 		});
-
-		console.log(params);
-
-		// if (this._dragFrom && this._dragFrom.uuid !== params.uuid) {
-		// 	const dragFrom = this._dragFrom;
-		// 	// Drag from node
-		// 	e.preventDefault();
-		// 	e.stopPropagation();
-
-		// 	// Add this as arg to another node
-		// 	let resolveSeq = treeUtils.byId(this.state.functionTree, params.uuid)
-		// 	let resolverTree;
-		// 	if (resolveSeq.size) {
-		// 		let resolverTree = this.state.functionTree.updateIn(resolveSeq.concat('args'), args => args.push(dragFrom))
-				
-		// 		const uiGenTree = this.writeUIGenTree(resolverTree.toJS().args[0]);
-
-		// 		this.parseResolveTree(uiGenTree, this.state.resolveNodes);
-		// 	}
-
-		// 	this._dragFrom = null;
-		// } else {
-		// 	// Click (or otherwise mouseup) on node
-		// 	if(!params.isResolvedComputation) {
-		// 		e.preventDefault();
-		// 		e.stopPropagation();
-		// 		this.showResolveParamsEditor(e, {
-		// 			uuid: params.uuid
-		// 		});
-		// 	}
-		// }
 	}
 
 	handleAddArgToNode = (uuid) => {
@@ -346,18 +321,12 @@ class ResolveTreeEditor extends Component {
 	}
 
 	handleRemoveArg = (params, arg) => {
-		let argSeq = treeUtils.find(this.state.functionTree, n => n.get('uuid') === arg.uuid && n.get('name') === arg.name);
-		let fn = this.state.functionTree.getIn(argSeq);
-		let resolverTree = this.state.functionTree.removeIn(argSeq);
-		
-		const uiGenTree = this.writeUIGenTree(resolverTree.toJS().args[0]);
-		const newState = this.generateState(uiGenTree, this.state.resolveNodes);
+		if (arg.type === 'string') {
+			return;
+		}
 
-		this.setState({
-			...newState,
-			// Removing arg shouldnt remove node
-			functionTreeAsNodes: newState.functionTreeAsNodes.push(fn),
-		})
+		// Preserve removed args as new trees
+		this._preservedTrees = [].concat(this._preservedTrees || [], arg);
 	}
 
 	handleMouseOver = (e, { uuid }) => {
@@ -426,6 +395,7 @@ class ResolveTreeEditor extends Component {
 					argColors={argColors}
 					onSave={(data) => this.handleSave(data)}
 					onRemoveArg={(arg) => this.handleRemoveArg(resolveDataJson, arg)}
+					onCancel={() => { this.setState({edit: null, }) }}
 				/>
 			)}
 			<svg 
