@@ -17,7 +17,6 @@ export default (state, args, block) => {
 				
 				if (treeArg.args.length) {
 					const resolveArg = writeUIGenTree(treeArg);
-					console.log(treeArg, resolveArg, state);
 
 					let resolvedArg = JSON.stringify( resolver(resolveArg)({state, args: [] }) );
 					

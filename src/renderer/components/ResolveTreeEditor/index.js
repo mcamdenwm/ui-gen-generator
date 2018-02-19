@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { WMTree } from '@workmarket/front-end-components';
-import { compose, fromPairs, toPairs, map, range, trim, split } from 'ramda';
+import { compose, fromPairs, toPairs, map, range, trim, split, uniqBy } from 'ramda';
 import _ from 'lodash';
 import { fromJS, Map, List } from 'immutable';
 import TreeUtils from 'immutable-treeutils';
@@ -218,6 +218,7 @@ class ResolveTreeEditor extends Component {
 		});
 	}
 	handleMouseDownOnNode = (e, params) => {
+		console.log('new drag from', params);
 		this._dragFrom = params;
 		this._dragFrom.args = this._dragFrom.args.toJS();
 	}
@@ -295,11 +296,39 @@ class ResolveTreeEditor extends Component {
 	}
 
 	handleMouseUpOnNode = (e, params) => {
-		this._dragFrom = null;
-		this.setState({
+		let updatedState = {
 			dragToPosition: null,
-			edit: params.uuid,
-		});
+		};
+
+		if (this._dragFrom && this._dragFrom.uuid !== params.uuid) {
+			const parentTree = this.state.resolveTrees.find(tree => treeUtils.byId(tree, params.uuid));
+			const parentTreeI = this.state.resolveTrees.findIndex(tree => treeUtils.byId(tree, params.uuid));
+			const seq = [parentTreeI].concat(treeUtils.byId(parentTree, params.uuid).toJS());
+
+			const { resolveTreesAsNodes } = this.state;
+			const dragFromResolve = resolveTreesAsNodes.flatten(1).find(n => n.get('uuid') === this._dragFrom.uuid);
+
+			let mutatedTreeList = this.state.resolveTrees.updateIn(seq, (parentNode) => {
+				console.log('Update parentNode', parentNode.toJS());
+				const parentNodeArgs = parentNode.get('args');
+				return parentNode.set('args', parentNodeArgs.push(dragFromResolve));
+			});
+
+			const uiGenTreeList = mutatedTreeList.toJS().map(writeUIGenTree);
+			
+			// @todo tree should be a list of strings (resolves)
+			const mutatedTree = JSON.stringify([{
+				...this.state.resolveTree,
+				trees: uiGenTreeList,
+			}]);
+
+			this.props.onMutatedResolveTree(mutatedTree, this.state.resolveNodes);
+		} else {
+			updatedState.edit = params.uuid;
+		}
+
+		this._dragFrom = null;
+		this.setState(updatedState);
 	}
 
 	handleAddArgToNode = (uuid) => {
@@ -327,6 +356,7 @@ class ResolveTreeEditor extends Component {
 
 		// Preserve removed args as new trees
 		this._preservedTrees = [].concat(this._preservedTrees || [], arg);
+		this._preservedTrees = uniqBy(n => n.uuid, this._preservedTrees);
 	}
 
 	handleMouseOver = (e, { uuid }) => {
@@ -383,8 +413,6 @@ class ResolveTreeEditor extends Component {
 			...memo,
 			[current.get('operationUuid')]: current.get('color'),
 		}), {});
-
-		console.log(argColors);
 
 		return <div onMouseUp={this.handleMouseUpOnCanvas} onMouseMove={this.handleMouseMove} style={{ position: 'relative' }} id="function-editor">
 			{showEditor && (

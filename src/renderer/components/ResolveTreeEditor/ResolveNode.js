@@ -50,7 +50,7 @@ export default ({
 			}} transform="translate(-50, -50)">
 				<tspan x="0" dy="1.2em">{truncatedPath}</tspan>
 			</text>
-			<circle r={5 + args.size * 5} fill={node.getIn(['color'])} style={{opacity: node.getIn(['position','opacity'])}} />
+			<circle r={10 + args.size * 5} fill={node.getIn(['color'])} style={{opacity: node.getIn(['position','opacity'])}} />
 		</g>
 	);
 }
