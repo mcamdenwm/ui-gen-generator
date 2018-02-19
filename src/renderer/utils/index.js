@@ -1,7 +1,12 @@
 import { getResolver } from '@workmarket/ui-generation/dist-es/data';
 import * as R from 'ramda';
-
 const uuid = require('uuid/v4');
+
+import blockNameRenderer from './blockNameRenderer';
+
+export { 
+	blockNameRenderer,
+};
 
 // expand dis
 export const resolver = getResolver({
@@ -43,12 +48,8 @@ export const writeUIGenTree = (functionTree) => {
 			return block.name;
 		}
 
-		if (block.type === 'state') {
-			delete block.args;
-		}
-
-		if (block.type !== 'state') {
-			delete block.path;
+		if (block.type === 'state' && block.args.length) {
+			block.path = block.args;
 		}
 
 		return {

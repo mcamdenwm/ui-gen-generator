@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 const uuid = require('uuid/v4');
 import ramdaApi from './ramda';
 import { fromJS } from 'immutable';
+import { blockNameRenderer } from '../../utils/';
 
 const style = {
 	position: 'absolute',
@@ -108,6 +109,26 @@ class ResolveParamsEditor extends Component {
 	}
 
 	render() {
+		const state = {
+			FOO: fromJS({
+				bar: {
+					baz: 'This is, foo, bar, baz   ',
+				},
+			}),
+		};
+		const {
+			name,
+			type,
+			uuid,
+		} = this.props;
+
+		const block = {
+			name,
+			type,
+			uuid,
+		};
+
+
 		console.log(this.state.name, this.state);
 		return (
 			<div
@@ -133,7 +154,15 @@ class ResolveParamsEditor extends Component {
 				}
 				{
 					this.state.pathArgs.map((arg, i) => {
-						const argName = arg.type === 'state' ? 'state' : arg.name;
+						const {
+							fullPath,
+						} = blockNameRenderer(state, fromJS([arg]), fromJS(arg));
+
+						let argName = arg.name;
+
+						if (arg.type === 'state') {
+							argName = fullPath;
+						}
 
 						return (
 							<div key={i}>
@@ -143,7 +172,7 @@ class ResolveParamsEditor extends Component {
 									width: '5px',
 									height: '5px',
 									borderRadius: '5px',
-								}} /> <input key={i} onChange={(e) => { this.handleUpdateArg(arg, e.target.value) }} type='text' value={arg.name} disabled={arg.type === 'fn' || arg.type === 'state'} />
+								}} /> <input key={i} onChange={(e) => { this.handleUpdateArg(arg, e.target.value) }} type='text' value={argName} disabled={arg.type === 'fn' || arg.type === 'state'} />
 								<button onClick={() => {
 									this.removeArg(arg);
 								}}>x</button>

@@ -391,7 +391,6 @@ class ResolveTreeEditor extends Component {
 			position,
 			editorParams,
 			functionTreeAsNodes,
-			argColors,
 			over,
 			edit,
 		} = this.state;
@@ -408,9 +407,15 @@ class ResolveTreeEditor extends Component {
 				top: editNode.getIn(['position', 'y']),
 			};
 			resolveDataJson = editResolve.toJS();
-			console.log(resolveDataJson);
 			showEditor = true;
 		}
+
+		const argColors = resolveNodes.reduce((memo, current) => ({
+			...memo,
+			[current.get('operationUuid')]: current.get('color'),
+		}), {});
+
+		console.log(argColors);
 
 		return <div onMouseUp={this.handleMouseUpOnCanvas} onMouseMove={this.handleMouseMove} style={{ position: 'relative' }} id="function-editor">
 			{showEditor && (
