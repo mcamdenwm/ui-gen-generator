@@ -19,9 +19,12 @@ export const walk = (stack, cb) => {
 		if (typeof node === 'string') {
 			block = node;
 		} else {
-			if (node.args) {
+			if (node.args && node.args.length) {
 				block.args = node.args.map(walker);
-			}			
+			}
+			else if (node.path && node.path.length) {
+				block.path = node.path.map(walker);
+			}
 		}
 
 		return cb(block);
@@ -41,8 +44,11 @@ export const writeUIGenTree = (functionTree) => {
 		}
 
 		if (block.type === 'state') {
-			block.path = block.args;
 			delete block.args;
+		}
+
+		if (block.type !== 'state') {
+			delete block.path;
 		}
 
 		return {

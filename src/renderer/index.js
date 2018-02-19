@@ -18,12 +18,6 @@ if (!state) {
 	state = {};
 }
 
-// let view = {};
-
-// if (state && state.view) {
-//   view = state.view;
-// }
-
 // Reset body styles
 document.body.style.margin = '0';
 document.body.style.padding = '0';
@@ -106,13 +100,23 @@ configureGetComponent()
 										toJS: true,
 									}],
 									actions: [{
-										propName: 'onUpdateTree',
+										propName: 'onMutatedResolveTree',
 										sequence: [{
 											type: 'VIEW__UPDATE_TREE',
+											path: ['VIEW', 'resolveTrees'],
 											data: {
 												$$WM__resolve: {
 													type: 'event',
 													index: 0,
+												},
+											},
+										}, {
+											type: 'VIEW__UPDATE_POSITIONS',
+											path: ['VIEW', 'resolveNodes'],
+											data: {
+												$$WM__resolve: {
+													type: 'event',
+													index: 1,
 												},
 											},
 										}]

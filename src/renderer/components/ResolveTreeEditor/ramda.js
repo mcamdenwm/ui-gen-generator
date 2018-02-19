@@ -1,4 +1,4 @@
-[
+export default [
   {
     "description": "Returns a function that always returns the given value. Note that for\nnon-primitives the value returned is a reference to the original value.\n\nThis function is known as `const`, `constant`, or `K` (for K combinator) in\nother languages and libraries.",
     "name": "always",

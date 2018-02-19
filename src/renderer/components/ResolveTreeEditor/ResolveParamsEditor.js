@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 const uuid = require('uuid/v4');
+import ramdaApi from './ramda';
+import { fromJS } from 'immutable';
 
 const style = {
 	position: 'absolute',
@@ -24,6 +26,9 @@ class ResolveParamsEditor extends Component {
 			type: props.type,
 			args: props.args || [],
 			argColors: props.argColors || {},
+			name: props.name,
+			path: props.path || [],
+			pathArgs: [].concat(props.args, props.path),
 		});
 	}
 
@@ -43,13 +48,67 @@ class ResolveParamsEditor extends Component {
 
 	addArg = () => {
 		this.setState({
-			args: [{
+			pathArgs: [].concat(this.state.pathArgs, [{
 				uuid: uuid(),
-			}].concat(this.state.args),
+				type: 'string',
+				name: '',
+			}]),
+		});
+	}
+
+	handleSave = () => {
+		// let args = {
+
+		// 	type: this.state.type,
+		// 	args: this.state.args,
+		// 	name: this.state.name,
+		// 	path: this.state.path,
+		// };
+		
+
+		if (!this.props.onSave) {
+			return;
+		}
+
+		const {
+			name,
+			type,
+			uuid,
+		} = this.props;
+
+		const block = {
+			name,
+			type,
+			uuid,
+		};
+
+		if (this.props.type === 'state') {
+			block.path = this.state.pathArgs;
+		} else {
+			block.args = this.state.pathArgs;
+		}
+
+		this.props.onSave(block);
+	}
+
+	handleUpdateArg = (arg, value) => {
+
+		const mutPathArgs = this.state.pathArgs.map((pathArg, i) => {
+			if (pathArg.uuid !== arg.uuid) {
+				return pathArg;
+			}
+
+			pathArg.name = value;
+			return pathArg;
+		});
+
+		this.setState({
+			pathArgs: mutPathArgs,
 		});
 	}
 
 	render() {
+		console.log(this.state.name, this.state);
 		return (
 			<div
 				style={{
@@ -64,22 +123,35 @@ class ResolveParamsEditor extends Component {
 					</select>
 				</div>
 				{
-					this.state.args.map((arg, i) => (
-						<div key={i}>
-							<span style={{
-								background: this.state.argColors[arg.uuid],
-								display: 'inline-block',
-								width: '5px',
-								height: '5px',
-								borderRadius: '5px',
-							}} /> <input key={i} type='text' value={arg.name} disabled={arg.type === 'fn' || arg.type === 'state'} />
-							<button onClick={() => {
-								this.removeArg(arg);
-							}}>x</button>
-						</div>
-					))
+					this.state.type === 'fn' && (
+						<select name="fn-selector" value={this.state.name}>
+						{ramdaApi.map((api, i) => (
+							<option key={i} value={api.name}>{api.name}</option>
+						))}
+						</select>
+					)
 				}
-				<button onClick={this.addArg}>+</button> <button onClick={this.props.onSave && this.props.onSave}>Save</button>
+				{
+					this.state.pathArgs.map((arg, i) => {
+						const argName = arg.type === 'state' ? 'state' : arg.name;
+
+						return (
+							<div key={i}>
+								<span style={{
+									background: this.state.argColors[arg.uuid],
+									display: 'inline-block',
+									width: '5px',
+									height: '5px',
+									borderRadius: '5px',
+								}} /> <input key={i} onChange={(e) => { this.handleUpdateArg(arg, e.target.value) }} type='text' value={arg.name} disabled={arg.type === 'fn' || arg.type === 'state'} />
+								<button onClick={() => {
+									this.removeArg(arg);
+								}}>x</button>
+							</div>
+						)
+					})
+				}
+				<button onClick={this.addArg}>+</button> <button onClick={this.handleSave}>Save</button>
 			</div>
 		);
 	}

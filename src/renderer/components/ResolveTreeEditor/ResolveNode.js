@@ -2,7 +2,15 @@ import React from 'react';
 import { fromJS } from 'immutable';
 import { writeUIGenTree, resolver } from '../../utils';
 
-export default ({ block, node, index }) => {
+export default ({ 
+	block,
+	node,
+	index,
+	onMouseDown,
+	onMouseUp,
+	onMouseOver,
+	onMouseOut,
+}) => {
 	let args = block.get('args');
 	const path = block.get('path');
 
@@ -44,9 +52,13 @@ export default ({ block, node, index }) => {
 					
 					if (treeArg.args.length) {
 						const resolveArg = writeUIGenTree(treeArg);
-						const resolvedArg = JSON.stringify( resolver(resolveArg)({state, args: [] }) );
-
-						value = `'${resolvedArg}'`;
+						let resolvedArg = JSON.stringify( resolver(resolveArg)({state, args: [] }) );
+						
+						if (!resolvedArg) {
+							value = `${treeArg.name}()`;
+						} else {
+							value = `'${resolvedArg}'`;
+						}
 					}
 				}										
 			} catch (e) {
@@ -63,12 +75,15 @@ export default ({ block, node, index }) => {
 		}
 	}
 
+	const truncatedPath = `${blockName}${!argString ? '' : `(${argString})`}`;
+	const fullPath = `${blockName}${!argString ? '' : `(${argParts.join(',')})`}`;
+
 	return (
 		<g transform={`translate(${node.getIn(['position','x'])}, ${node.getIn(['position','y'])})`}
-			onMouseDown={(e) => { this.handleMouseDownOnNode(e, { args, blockName, uuid: block.get('uuid'), type: block.get('type') }) }}
-			onMouseUp={(e) => { this.handleMouseUpOnNode(e, { args, blockName, isResolvedComputation, uuid: block.get('uuid'), type: block.get('type') })}}
-			onMouseOver={(e) => { this.handleMouseOver(e, {uuid: block.get('uuid')} ) }}
-			onMouseOut={(e) => { this.handleMouseOut(e, {uuid: block.get('uuid')} ) }}
+			onMouseDown={(e) => { onMouseDown(e, { args, blockName, uuid: block.get('uuid'), type: block.get('type') }) }}
+			onMouseUp={(e) => { onMouseUp(e, { args, blockName, uuid: block.get('uuid'), type: block.get('type'), fullPath })}}
+			onMouseOver={(e) => { onMouseOver(e, {uuid: block.get('uuid')} ) }}
+			onMouseOut={(e) => { onMouseOut(e, {uuid: block.get('uuid')} ) }}
 		>
 			<text style={{
 				textAnchor: argString.length > 10 ? 'middle' : 'start',
@@ -77,7 +92,7 @@ export default ({ block, node, index }) => {
 				stroke: node.getIn(['color']),
 				fill: node.getIn(['color']),
 			}} transform="translate(-50, -50)">
-				<tspan x="0" dy="1.2em">{blockName}{!argString ? '' : `(${argString})`}</tspan>
+				<tspan x="0" dy="1.2em">{truncatedPath}</tspan>
 			</text>
 			<circle r={5 + argParts.length * 5} fill={node.getIn(['color'])} style={{opacity: node.getIn(['position','opacity'])}} />
 		</g>
