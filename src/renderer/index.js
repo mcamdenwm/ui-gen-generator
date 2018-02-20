@@ -82,6 +82,14 @@ configureGetComponent()
 								getComponent({
 									type: 'ResolveTreeEditor',
 									selectors: [{
+										propName: 'storeState',
+										data: {
+											$$WM__resolve: {
+												type: 'state',
+												path: ['VIEW', 'storeState'],
+											},
+										},
+									}, {
 										propName: 'resolveTrees',
 										data: {
 											$$WM__resolve: {

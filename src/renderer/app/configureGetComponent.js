@@ -83,15 +83,15 @@ export default async () => {
 							};
 
 							if (resolveTree) {
-								let lastResolveTree = resolveTree.trees[1];
-								let mutatedLastResolveTree = walk(lastResolveTree, (tree) => {
-									console.log(tree);
-									return tree;
-								});
-								
+								// let lastResolveTree = resolveTree.trees[0];
+								// let mutatedLastResolveTree = walk(lastResolveTree, (tree) => {
+								// 	console.log(tree);
+								// 	return tree;
+								// });
+
 								res.selectors = [{
 									propName: resolveTree.propName,
-									data: (resolveTree && resolveTree.trees[1]) || {},
+									data: (resolveTree && resolveTree.trees[0]) || {},
 								}];
 							}
 

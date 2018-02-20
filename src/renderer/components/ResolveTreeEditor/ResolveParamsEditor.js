@@ -105,15 +105,15 @@ class ResolveParamsEditor extends Component {
 	}
 
 	render() {
-		const state = {
-			VIEW: fromJS({
-				FOO: {
-					bar: {
-						baz: 'This is, foo, bar, baz   ',
-					},
-				},
-			})
-		};
+		// const state = {
+		// 	VIEW: fromJS({
+		// 		FOO: {
+		// 			bar: {
+		// 				baz: 'This is, foo, bar, baz   ',
+		// 			},
+		// 		},
+		// 	})
+		// };
 
 		return (
 			<div
@@ -142,7 +142,7 @@ class ResolveParamsEditor extends Component {
 						let fullPath = '';
 
 						if (arg.type !== 'string') {
-							fullPath = blockNameRenderer(state, fromJS([arg]), fromJS(arg));
+							fullPath = blockNameRenderer(this.props.storeState, fromJS([arg]), fromJS(arg));
 						}
 
 						let argName = arg.name;

@@ -19,19 +19,21 @@ import ResolveLink from './ResolveLink';
 
 const treeUtils = new TreeUtils(null, 'uuid', 'args');
 
-const state = {
-	FOO: fromJS({
-		bar: {
-			baz: 'This is, foo, bar, baz   ',
-		},
-	}),
-};
+// const state = {
+// 	VIEW: fromJS({
+// 		FOO: {
+// 			bar: {
+// 				baz: 'This is, foo, bar, baz   ',
+// 			},
+// 		},
+// 	})
+// };
 
-const resolver = getResolver({
-	functions: {
-		split, trim, map
-	},
-});
+// const resolver = getResolver({
+// 	functions: {
+// 		split, trim, map
+// 	},
+// });
 
 function walkResolve(stack, cb) {
 	function walker(node) {
@@ -416,6 +418,7 @@ class ResolveTreeEditor extends Component {
 					onSave={(data) => this.handleSave(data)}
 					onRemoveArg={(arg) => this.handleRemoveArg(resolveDataJson, arg)}
 					onCancel={() => { this.setState({edit: null, }) }}
+					storeState={this.props.storeState}
 				/>
 			)}
 			<svg 
@@ -490,6 +493,7 @@ class ResolveTreeEditor extends Component {
 									onMouseUp={this.handleMouseUpOnNode}
 									onMouseOver={this.handleMouseOver}
 									onMouseOut={this.handleMouseOut}
+									storeState={this.props.storeState}
 								/>
 							);
 						})
@@ -525,10 +529,19 @@ export default (props) => {
 	if (typeof resolveTrees === 'string') {
 		resolveTrees = JSON.parse(resolveTrees);
 	}
+
+	const storeState = {
+		VIEW: Map({
+			storeState: props.storeState,
+		}),
+	}
+
+	console.log(storeState);
 	
 	return (
 		<ResolveTreeEditor
 			{...props}
+			storeState={storeState}
 			resolveTree={resolveTrees[0]}
 		/>
 	);

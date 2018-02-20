@@ -28,6 +28,8 @@ export default {
 									"uuid": "39da4a6e-1bff-4c9f-bf22-b852e97bda11",
 									"type": "state",
 									"path": [
+										"VIEW",
+										"storeState",
 										"FOO",
 										"bar",
 										"baz"
@@ -79,7 +81,7 @@ export default {
 			"color": "#7570b3"
 		}
 	],
-	"store": {
+	"storeState": {
 		"FOO": {
 			"bar": {
 				"baz": "Ayyyoooo",

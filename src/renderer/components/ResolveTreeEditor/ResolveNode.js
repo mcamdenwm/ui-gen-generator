@@ -12,6 +12,7 @@ export default ({
 	onMouseUp,
 	onMouseOver,
 	onMouseOut,
+	storeState,
 }) => {
 	let args = block.get('args');
 	const path = block.get('path');
@@ -23,21 +24,21 @@ export default ({
 	const hasArgs = args && args.size;
 	const argsContainOnlyLiterals = args.reduce((memo, arg) => (memo && arg.get('type') !== 'string'), true);
 
-	const state = {
-		VIEW: fromJS({
-			FOO: {
-				bar: {
-					baz: 'This is, foo, bar, baz   ',
-				},
-			},
-		})
-	};
+	// const state = {
+	// 	VIEW: fromJS({
+	// 		FOO: {
+	// 			bar: {
+	// 				baz: 'This is, foo, bar, baz   ',
+	// 			},
+	// 		},
+	// 	})
+	// };
 
 	const {
 		truncatedPath,
 		fullPath,
 		resolvedBlock,
-	} = blockNameRenderer(state, args, block);
+	} = blockNameRenderer(storeState, args, block);
 
 	return (
 		<g transform={`translate(${node.getIn(['position','x'])}, ${node.getIn(['position','y'])})`}
