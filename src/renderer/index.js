@@ -32,21 +32,6 @@ configureGetComponent()
 						flexDirection: 'row',
 						overflow: 'hidden',
 					}}>
-						<div className="initializer">
-{/*							{
-								getComponent({
-									type: 'WMGeneric',
-									actions: [{
-										propName: 'willMount',
-										sequence: [{
-											type: 'VIEW__SET_STATE',
-											path: ['VIEW'],
-											data: state,
-										}]
-									}]
-								})
-							}*/}
-						</div>
 						<div className="view-tree" style={{
 							width: '15%',
 						}}>
@@ -66,79 +51,146 @@ configureGetComponent()
 								})
 							}
 						</div>
-						<div className="preview" style={{
+						<div style={{
 							width: '70%',
-							display: 'block',
-						}}>
-							{
-								getComponent(preview())
-							}
-						</div>
-						<div className="function-editor" style={{
-							width: '70%',
-							display: 'none',
 						}}>
 							{
 								getComponent({
-									type: 'ResolveTreeEditor',
+									type: 'WMGeneric',
+									props: {
+										style: {
+											textAlign: 'right'
+										},
+									},
+									children: [{
+										type: 'WMFlatButton',
+										props: {
+											label: '[Preview]'
+										},
+										actions: [{
+											propName: 'onClick',
+											sequence: [{
+												type: 'COMPONENT_EDITOR__EDIT_SELECTOR',
+												path: ['COMPONENT_EDITOR', 'selector'],
+												data: null,
+											}]
+										}]
+									}, {
+										type: 'WMFlatButton',
+										props: {
+											label: '[Resolver Editor]'
+										}
+									}]
+								})
+							}
+							{
+								getComponent({
+									type: 'WMGeneric',
+									props: {
+										className: 'preview',
+										key: 'preview',
+									},
 									selectors: [{
-										propName: 'storeState',
+										propName: 'style',
 										data: {
 											$$WM__resolve: {
-												type: 'state',
-												path: ['VIEW', 'storeState'],
+												type: 'fn',
+												name: 'getMainViewStyle',
+												args: [{
+													$$WM__resolve: {
+														type: 'state',
+														path: ['COMPONENT_EDITOR', 'selector'],
+													},
+												}, 'preview'],
 											},
 										},
-									}, {
-										propName: 'resolveTrees',
-										data: {
-											$$WM__resolve: {
-												type: 'state',
-												path: ['VIEW', 'resolveTrees'],
-											},
-										},
-										toJS: true,
-									}, {
-										propName: 'resolveNodes',
-										data: {
-											$$WM__resolve: {
-												type: 'state',
-												path: ['VIEW', 'resolveNodes'],
-											},
-										},
-										toJS: true,
 									}],
-									actions: [{
-										propName: 'onMutatedResolveTree',
-										sequence: [{
-											type: 'VIEW__UPDATE_TREE',
-											path: ['VIEW', 'resolveTrees'],
+									children: [preview()]
+								})
+							}
+							{
+								getComponent({
+									type: 'WMGeneric',
+									props: {
+										className: 'function-editor',
+										key: 'resolve-editor',
+									},
+									selectors: [{
+										propName: 'style',
+										data: {
+											$$WM__resolve: {
+												type: 'fn',
+												name: 'getMainViewStyle',
+												args: [{
+													$$WM__resolve: {
+														type: 'state',
+														path: ['COMPONENT_EDITOR', 'selector'],
+													},
+												}, 'resolve-editor'],
+											},
+										},
+									}],
+									children: [{
+										type: 'ResolveTreeEditor',
+										selectors: [{
+											propName: 'storeState',
 											data: {
 												$$WM__resolve: {
-													type: 'event',
-													index: 0,
+													type: 'state',
+													path: ['VIEW', 'storeState'],
 												},
 											},
 										}, {
-											type: 'VIEW__UPDATE_POSITIONS',
-											path: ['VIEW', 'resolveNodes'],
+											propName: 'resolveTrees',
 											data: {
 												$$WM__resolve: {
-													type: 'event',
-													index: 1,
+													type: 'state',
+													path: ['VIEW', 'resolveTrees'],
 												},
 											},
-										}]
-									}, {
-										propName: 'onUpdatePositions',
-										sequence: [{
-											type: 'VIEW__UPDATE_POSITIONS',
+											toJS: true,
+										}, {
+											propName: 'resolveNodes',
 											data: {
 												$$WM__resolve: {
-													type: 'event',
-													index: 0,
+													type: 'state',
+													path: ['VIEW', 'resolveNodes'],
 												},
 											},
+											toJS: true,
+										}],
+										actions: [{
+											propName: 'onMutatedResolveTree',
+											sequence: [{
+												type: 'VIEW__UPDATE_TREE',
+												path: ['VIEW', 'resolveTrees'],
+												data: {
+													$$WM__resolve: {
+														type: 'event',
+														index: 0,
+													},
+												},
+											}, {
+												type: 'VIEW__UPDATE_POSITIONS',
+												path: ['VIEW', 'resolveNodes'],
+												data: {
+													$$WM__resolve: {
+														type: 'event',
+														index: 1,
+													},
+												},
+											}]
+										}, {
+											propName: 'onUpdatePositions',
+											sequence: [{
+												type: 'VIEW__UPDATE_POSITIONS',
+												data: {
+													$$WM__resolve: {
+														type: 'event',
+														index: 0,
+													},
+												},
+											}]
 										}]
 									}]
 								})
@@ -169,6 +221,15 @@ configureGetComponent()
 												}],
 											},
 										},
+									}, {
+										propName: 'resolveTrees',
+										data: {
+											$$WM__resolve: {
+												type: 'state',
+												path: ['VIEW', 'resolveTrees'],
+											},
+										},
+										toJS: true,
 									}],
 									actions: [{
 										propName: 'onFieldChange',
@@ -199,6 +260,20 @@ configureGetComponent()
 												},
 											},
 										}]
+									}, {
+										propName: 'onEditSelector',
+										sequence: [{
+											type: 'COMPONENT_EDITOR__EDIT_SELECTOR',
+											path: ['COMPONENT_EDITOR', 'selector'],
+											data: {
+												selector: {
+													$$WM__resolve: {
+														type: 'event',
+														index: 0,
+													},
+												}
+											},
+										}],
 									}],
 								})
 							}

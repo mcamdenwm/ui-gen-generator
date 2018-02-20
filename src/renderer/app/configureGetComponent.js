@@ -100,6 +100,20 @@ export default async () => {
 
 						console.log('mutatedTree', mutatedTree);
 						return JSON.stringify(mutatedTree);
+					},
+					getMainViewStyle: (selectorUuid, type) => {
+						let display = 'none';
+
+						if (type === 'resolve-editor' && selectorUuid) {
+							display = 'block';
+						}
+						else if (type === 'preview' && !selectorUuid) {
+							display = 'block';
+						}
+
+						return {
+							display: display,
+						};
 					}
 				},
 				store,

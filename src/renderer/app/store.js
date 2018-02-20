@@ -54,12 +54,14 @@ const storeConfig = {
 			data: {
 				open: false,
 				component: 'fa9481d8-4fda-41f4-87cb-34b6a3083a99',
+				selector: null,
 			},
 		},
 		handlers: [
 			'COMPONENT_EDITOR__EDIT_COMPONENT',
 			'COMPONENT_EDITOR__CLOSE',
 			'COMPONENT_EDITOR__UPDATE_FIELD',
+			'COMPONENT_EDITOR__EDIT_SELECTOR',
 		],
 	},
 };

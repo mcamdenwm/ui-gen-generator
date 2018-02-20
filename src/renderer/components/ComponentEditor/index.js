@@ -3,6 +3,7 @@ import {
 	WMText,
 	WMTextField,
 	WMToggle,
+	WMLink,
 } from '@workmarket/front-end-components';
 import { map } from 'ramda';
 
@@ -40,6 +41,11 @@ class ComponentEditor extends Component {
 				componentPropTypes: Component.propTypes,
 			});
 		});
+	}
+
+	getSelectors = () => {
+		const resolveTrees = JSON.parse(this.props.resolveTrees);
+		return resolveTrees.filter(tree => tree.type === 'selector');
 	}
 
 	render() {
@@ -80,6 +86,13 @@ class ComponentEditor extends Component {
 					<WMText>
 						Selectors
 					</WMText>
+					{this.getSelectors().map(selector => (
+						<div style={{
+							marginLeft: 10,
+						}}>
+							<WMLink onClick={(e) => {e.stopPropagation(); e.preventDefault(); this.props.onEditSelector && this.props.onEditSelector(selector.uuid) }}>{selector.propName}:{selector.name}</WMLink>
+						</div>
+					))}
 				</div>
 				<div style={{
 					width: '100%',
