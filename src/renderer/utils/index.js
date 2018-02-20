@@ -30,6 +30,9 @@ export const walk = (stack, cb) => {
 			else if (node.path && node.path.length) {
 				block.path = node.path.map(walker);
 			}
+			else if (node.children && node.children.length) {
+				block.children = node.children.map(walker);
+			}
 		}
 
 		return cb(block);

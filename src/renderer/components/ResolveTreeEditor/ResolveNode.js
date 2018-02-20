@@ -24,11 +24,13 @@ export default ({
 	const argsContainOnlyLiterals = args.reduce((memo, arg) => (memo && arg.get('type') !== 'string'), true);
 
 	const state = {
-		FOO: fromJS({
-			bar: {
-				baz: 'This is, foo, bar, baz   ',
+		VIEW: fromJS({
+			FOO: {
+				bar: {
+					baz: 'This is, foo, bar, baz   ',
+				},
 			},
-		}),
+		})
 	};
 
 	const {

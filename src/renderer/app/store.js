@@ -20,13 +20,21 @@ if (!state) {
 const storeConfig = {
 	VIEW: {
 		initialState: {
-			data: state,
+			data: {
+				...state,
+				FOO: {
+					bar: {
+						baz: 'Ayyyoo',
+					},
+				},
+			},
 		},
 		handlers: [
 			'VIEW__ADD_COMPONENT',
 			'VIEW__SET_STATE',
 			'VIEW__UPDATE_TREE',
 			'VIEW__UPDATE_POSITIONS',
+			'VIEW__IGNORE',
 		],
 	},
 	COMPONENT: {

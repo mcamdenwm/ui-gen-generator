@@ -6,9 +6,6 @@ export default {
 			{
 				"uuid": "fa9481d8-4fda-41f4-87cb-34b6a3083a99",
 				"type": "WMFlatButton",
-				"props": {
-					"label": "Click Meh"
-				}
 			}
 		]
 	},
@@ -16,6 +13,9 @@ export default {
 		{
 			"name": "fn1",
 			"uuid": "a8d21da4-6aae-496d-a9e5-bb829b5588b8",
+			"componentUuid": "fa9481d8-4fda-41f4-87cb-34b6a3083a99",
+			"type": "selector",
+			"propName": "label",
 			"trees": [
 				{
 					"$$WM__resolve": {
@@ -78,5 +78,12 @@ export default {
 			},
 			"color": "#7570b3"
 		}
-	]
+	],
+	"store": {
+		"FOO": {
+			"bar": {
+				"baz": "Ayyyoooo",
+			}
+		}
+	},
 };

@@ -1,14 +1,17 @@
-export default (getComponent) => ({
+export default () => ({
 	type: 'RenderView',
-	props: {
-		getComponent,
-	},
 	selectors: [{
 		propName: 'view',
 		data: {
 			$$WM__resolve: {
-				type: 'state',
-				path: ['VIEW', 'view'],
+				type: 'fn',
+				name: 'getUIGenTree',
+				args: [{
+					$$WM__resolve: {
+						type: 'state',
+						path: ['VIEW'],
+					},					
+				}]
 			},
 		},
 	}],

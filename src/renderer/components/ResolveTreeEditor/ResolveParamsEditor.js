@@ -106,11 +106,13 @@ class ResolveParamsEditor extends Component {
 
 	render() {
 		const state = {
-			FOO: fromJS({
-				bar: {
-					baz: 'This is, foo, bar, baz   ',
+			VIEW: fromJS({
+				FOO: {
+					bar: {
+						baz: 'This is, foo, bar, baz   ',
+					},
 				},
-			}),
+			})
 		};
 
 		return (
