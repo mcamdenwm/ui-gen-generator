@@ -151,7 +151,7 @@ class ResolveTreeEditor extends Component {
 				uuid: operationUuid,
 				args: [childNode.toJS()],
 				type: 'fn',
-				name: 'trim',
+				name: '',
 			};
 
 		} else {
@@ -279,6 +279,15 @@ class ResolveTreeEditor extends Component {
 	}	
 
 	handleRemoveNode = (uuid) => {
+		const node = this.state.resolveTreesAsNodes.flatten(1).find(n => n.get('uuid') === uuid);
+		const nodeArgs = node.get('args');
+		let preservedTrees = [];
+
+		if (nodeArgs && nodeArgs.size) {
+			preservedTrees = nodeArgs;
+			console.log('Preserving child args as new tree', preservedTrees);
+		} 
+
 		// Trim from trees list
 		const trimmedTrees = this.state.resolveTrees.filter(tree => tree.get('uuid') !== uuid);
 
@@ -292,7 +301,7 @@ class ResolveTreeEditor extends Component {
 			return tree;
 		});
 
-		const uiGenTreeList = trimmedArgsFromTrees.toJS().map(writeUIGenTree);
+		const uiGenTreeList = trimmedArgsFromTrees.concat(preservedTrees).toJS().map(writeUIGenTree);
 		
 		// @todo tree should be a list of strings (resolves)
 		// @todo uhh move this to a single thing, this is the 3rd copy
@@ -306,11 +315,6 @@ class ResolveTreeEditor extends Component {
 		}, () => {
 			this.props.onMutatedResolveTree(mutatedTree, this.state.resolveNodes);
 		});
-
-		// const parentTree = this.state.resolveTrees.find(tree => treeUtils.byId(tree, params.uuid));
-		// const parentTreeI = this.state.resolveTrees.findIndex(tree => treeUtils.byId(tree, params.uuid));
-		// const seq = [parentTreeI].concat(treeUtils.byId(parentTree, params.uuid).toJS());
-
 
 	}
 
@@ -364,7 +368,7 @@ class ResolveTreeEditor extends Component {
 					onRemoveArg={(arg) => this.handleRemoveArg(resolveDataJson, arg)}
 					onCancel={() => { this.setState({edit: null, }) }}
 					storeState={this.props.storeState}
-					onRemoveNode={this.handleRemoveNode}
+					onRemoveNode={(uuid) => { this.handleRemoveNode(uuid) }}
 				/>
 			)}
 			<svg 

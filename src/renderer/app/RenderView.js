@@ -3,14 +3,6 @@ import configureGetComponent from './configureGetComponent';
 import { resolver } from '../utils';
 import { fromJS } from 'immutable';
 
-const storeState = {
-	FOO: fromJS({
-		bar: {
-			baz: 'This is, foo, bar, baz   ',
-		},
-	}),
-};
-
 class RenderView extends Component {
 	componentWillMount = () => {
 		this.transferPropsToState(this.props);
@@ -26,7 +18,7 @@ class RenderView extends Component {
 				});
 			})
 			.catch((e) => {
-				console.log('Failed to resolve component');
+				console.log('Failed to resolve component', e);
 			})
 	}
   render() {
@@ -35,11 +27,7 @@ class RenderView extends Component {
   	}
 
   	const view = JSON.parse(this.props.view);
-  	// console.log(resolver(view));
 
-  	// let resolvedArg = resolver(view)({storeState, args: [] });
-
-  	// console.log();
   	let resolverResult;
   	let componentResult = null;
 
@@ -51,11 +39,6 @@ class RenderView extends Component {
   	}
 
   	return componentResult;
-
-
-  	// return this.state.getComponent( resolver(view) );
-		// debugger;  	
-    // return this.state.getComponent(view);
   }
 }
 
