@@ -349,7 +349,7 @@ export default [
   },
   {
     "description": "Returns the string representation of the given value. `eval`'ing the output\nshould result in a value equivalent to the input value. Many of the built-in\n`toString` methods do not satisfy this requirement.\n\nIf the given value is an `[object Object]` with a `toString` method other\nthan `Object.prototype.toString`, this method is invoked with no arguments\nto produce the return value. This means user-defined constructor functions\ncan provide a suitable `toString` method. For example:\n\n    function Point(x, y) {\n      this.x = x;\n      this.y = y;\n    }\n\n    Point.prototype.toString = function() {\n      return 'new Point(' + this.x + ', ' + this.y + ')';\n    };\n\n    R.toString(new Point(1, 2)); //=> 'new Point(1, 2)'",
-    "name": "toString$1",
+    "name": "toString",
     "sig": "* -> String",
     "category": "String"
   },
@@ -379,7 +379,7 @@ export default [
   },
   {
     "description": "Returns `true` if the specified value is equal, in [`R.equals`](#equals)\nterms, to at least one element of the given list; `false` otherwise.",
-    "name": "contains$1",
+    "name": "contains",
     "sig": "a -> [a] -> Boolean",
     "category": "List"
   },
@@ -1345,7 +1345,7 @@ export default [
   },
   {
     "description": "Removes (strips) whitespace from both ends of the string.",
-    "name": "_trim",
+    "name": "trim",
     "sig": "String -> String",
     "category": "String"
   },

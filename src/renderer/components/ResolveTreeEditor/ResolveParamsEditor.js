@@ -21,8 +21,6 @@ class ResolveParamsEditor extends Component {
 	}
 
 	transferPropsToState(props) {
-		console.log(props);
-
 		this.setState({
 			type: props.type,
 			args: props.args || [],
@@ -33,9 +31,15 @@ class ResolveParamsEditor extends Component {
 		});
 	}
 
-	handleChange(e) {
+	handleChange = (e) => {
 		this.setState({
 			type: e.target.value,
+		});
+	}
+
+	handleChangeFn = (e) => {
+		this.setState({
+			name: e.target.value,
 		});
 	}
 
@@ -63,10 +67,13 @@ class ResolveParamsEditor extends Component {
 		}
 
 		const {
-			name,
-			type,
 			uuid,
 		} = this.props;
+
+		const {
+			name,
+			type,
+		} = this.state;
 
 		const block = {
 			name,
@@ -104,17 +111,13 @@ class ResolveParamsEditor extends Component {
 		}
 	}
 
-	render() {
-		// const state = {
-		// 	VIEW: fromJS({
-		// 		FOO: {
-		// 			bar: {
-		// 				baz: 'This is, foo, bar, baz   ',
-		// 			},
-		// 		},
-		// 	})
-		// };
+	removeNode = () => {
+		if (this.props.onRemoveNode) {
+			this.props.onRemoveNode(this.props.uuid);
+		}
+	}
 
+	render() {
 		return (
 			<div
 				style={{
@@ -130,7 +133,7 @@ class ResolveParamsEditor extends Component {
 				</div>
 				{
 					this.state.type === 'fn' && (
-						<select name="fn-selector" value={this.state.name}>
+						<select name="fn-selector" value={this.state.name} onChange={this.handleChangeFn}>
 						{ramdaApi.map((api, i) => (
 							<option key={i} value={api.name}>{api.name}</option>
 						))}
@@ -142,7 +145,7 @@ class ResolveParamsEditor extends Component {
 						let fullPath = '';
 
 						if (arg.type !== 'string') {
-							fullPath = blockNameRenderer(this.props.storeState, fromJS([arg]), fromJS(arg));
+							fullPath = blockNameRenderer(this.props.storeState, fromJS([arg]), fromJS(arg)).fullPath;
 						}
 
 						let argName = arg.name;
@@ -169,6 +172,9 @@ class ResolveParamsEditor extends Component {
 				}
 				<div>
 					<button onClick={this.addArg}>+</button> <button onClick={this.handleSave}>Save</button> <button onClick={this.handleCancel}>Cancel</button> 
+				</div>
+				<div>
+					<button onClick={this.removeNode}>Delete Node</button>
 				</div>
 			</div>
 		);

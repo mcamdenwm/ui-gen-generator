@@ -19,22 +19,7 @@ import ResolveLink from './ResolveLink';
 
 const treeUtils = new TreeUtils(null, 'uuid', 'args');
 
-// const state = {
-// 	VIEW: fromJS({
-// 		FOO: {
-// 			bar: {
-// 				baz: 'This is, foo, bar, baz   ',
-// 			},
-// 		},
-// 	})
-// };
-
-// const resolver = getResolver({
-// 	functions: {
-// 		split, trim, map
-// 	},
-// });
-
+// @todo replace with util
 function walkResolve(stack, cb) {
 	function walker(node) {
 		if (typeof(node) === 'string') {
@@ -75,10 +60,6 @@ class ResolveTreeEditor extends Component {
 		const immutableResolvedTrees = fromJS(resolvedTrees);
 		const resolvedTreeLinks = immutableResolvedTrees.map(tree => hierarchy(tree.toJS(), d => d.args).links());
 
-		// const resolvedTree = walkResolve(parsedFns);
-		// const functionTree = fromJS(resolvedTree);
-		// const functionLinks = hierarchy(resolvedTree, d => d.args).links();
-
 		const immutableResolvedTreesAsNodes = immutableResolvedTrees.map(n => {
 			return treeUtils.nodes(n).map(path => n.getIn(path));
 		});
@@ -88,104 +69,16 @@ class ResolveTreeEditor extends Component {
 			flattenedResolvedTreeLinks = flattenedResolvedTreeLinks.reduce((memo, g) => memo.concat(g), []);
 		}		
 
-		// console.log(immutableResolvedTrees, immutableResolvedTreesAsNodes);
-
-		// treeUtils.nodes(functionTree).map(path => functionTree.getIn(path));
-		
 		return {
 			resolveTrees: immutableResolvedTrees,
 			resolveTreesAsNodes: immutableResolvedTreesAsNodes,
 			resolveNodes: fromJS(resolveNodes),
 			resolvedTreeLinks: flattenedResolvedTreeLinks,
 			resolveTree,
-			// resolveTree: parsedFns,
-			// resolveNodes: this.assignColor(resolveNodes),
-			// functionTree,
-			// functionLinks,
-			// functionTreeAsNodes,
 		};
 	}
 	parseResolveTree(resolveTree, resolveNodes) {
 		this.setState(this.generateState(resolveTree, resolveNodes));
-	}
-
-	assignColor = (positions, overNode) => {
-		let overChildNodesSeq = [];
-		let overChildNodes = [];
-
-		if (overNode) {
-			overChildNodesSeq =	treeUtils.childNodes(this.state.functionTree, overNode);
-			overChildNodes = overChildNodesSeq.map(seq => this.state.functionTree.getIn(seq));
-		}
-
-		return positions.map((position, i) => {
-			let positionOpacity = 1;
-
-			if (overNode && overNode !== position.uuid) {
-				positionOpacity = .1;
-			}
-
-			position.color = color(i);
-			position.opacity = positionOpacity;
-			return position;
-		});
-	}
-
-	showResolveParamsEditor = (e, params) => {
-		return;
-		const container = document.getElementById('function-editor');
-
-		// links are the args of the fn, so we can extract the arg color from the links
-		const argColors = this.state.resolvedTreeLinks.filter(link => link.source.data.uuid === params && params.uuid)
-			.reduce((memo, link) => {
-				if (link.target.data.type === 'string') {
-					return null;
-				}
-				const target = this.state.resolveNodes.find(n => n.get('uuid') === link.target.data.uuid);
-
-				return {
-					...memo,
-					[target.get('uuid')]: target.color,
-				};
-			}, {});
-		
-		const newNode = {
-			uuid: uuid(),
-			name: 'state',
-			args: fromJS([
-				{type: 'string', name: 'FOO'},
-				{type: 'string', name: 'bar'}, 
-				{type: 'string', name: 'baz'},
-			]),
-			type: 'state',
-		};
-
-		const newPositions = [].concat(this.state.resolveNodes);
-		let newFunctionTreeAsNodes = this.state.functionTreeAsNodes;
-
-		if (!params) {
-			newPositions.push({
-				position: {
-					left: (e.clientX - container.offsetLeft),
-					top: (e.clientY),
-				},
-				uuid: uuid(),
-			});
-
-			newFunctionTreeAsNodes = newFunctionTreeAsNodes.push(fromJS(newNode));
-		}
-
-		this.setState({
-			showEditor: true,
-			position: {
-				x: e.clientX - container.offsetLeft,
-				y: e.clientY,
-			},
-			editorParams: params || newNode,
-			resolveNodes: this.assignColor(newPositions),
-			functionTreeAsNodes: newFunctionTreeAsNodes,
-			argColors,
-		});
 	}
 
 	handleSave = (params) => {
@@ -231,7 +124,7 @@ class ResolveTreeEditor extends Component {
 			this.setState({
 				dragToPosition: {
 					x: (e.clientX - container.offsetLeft),
-					y: (e.clientY),
+					y: (e.clientY - container.offsetTop),
 				}
 			})
 		}
@@ -247,10 +140,12 @@ class ResolveTreeEditor extends Component {
 		let parentTree = null;
 		let childNode = null;
 		let newResolve;
+		let dragFrom = this._dragFrom;
 
 		if (this._dragFrom) {
 			parentTree = this.state.resolveTrees.find(tree => treeUtils.byId(tree, this._dragFrom.uuid));
-			childNode = parentTree.getIn(treeUtils.byId(parentTree, this._dragFrom.uuid));
+			const childNodeSeq = treeUtils.byId(parentTree, this._dragFrom.uuid);
+			childNode = parentTree.getIn(childNodeSeq);
 
 			newResolve = {
 				uuid: operationUuid,
@@ -258,10 +153,11 @@ class ResolveTreeEditor extends Component {
 				type: 'fn',
 				name: 'trim',
 			};
+
 		} else {
 			newResolve = {
 				uuid: operationUuid,
-				path: ['FOO', 'bar', 'baz'],
+				path: ['VIEW', 'storeState', 'FOO', 'bar', 'baz'],
 				type: 'state',
 			};
 		}
@@ -271,14 +167,23 @@ class ResolveTreeEditor extends Component {
 			operationUuid: operationUuid,
 			position: {
 				x: (e.clientX - container.offsetLeft),
-				y: (e.clientY),
+				y: (e.clientY - container.offsetTop),
 			},
 			color: color(this.state.resolveTreesAsNodes.size + 1),
 		};
 
-		const mutatedTreeList = this.state.resolveTrees.push(Map(newResolve));
+		const mutatedTreeList = this.state.resolveTrees.push(Map(newResolve))
+			.filter(n => {
+				if (dragFrom) {
+					return dragFrom.uuid !== n.get('uuid');
+				}
+
+				return true;
+			})
 		const mutatedNodesList = this.state.resolveNodes.push(Map(newNode));
 		const uiGenTreeList = mutatedTreeList.toJS().map(writeUIGenTree);
+
+		console.log(mutatedTreeList);
 
 		if (this.props.onMutatedResolveTree) {
 			// @todo tree should be a list of strings (resolves)
@@ -373,7 +278,47 @@ class ResolveTreeEditor extends Component {
 		});
 	}	
 
+	handleRemoveNode = (uuid) => {
+		// Trim from trees list
+		const trimmedTrees = this.state.resolveTrees.filter(tree => tree.get('uuid') !== uuid);
+
+		// Trim as arg from other trees
+		const trimmedArgsFromTrees = trimmedTrees.map(tree => {
+			const argSeq = treeUtils.byId(tree, uuid);
+			if (argSeq) {
+				return tree.deleteIn(argSeq);
+			}
+			
+			return tree;
+		});
+
+		const uiGenTreeList = trimmedArgsFromTrees.toJS().map(writeUIGenTree);
+		
+		// @todo tree should be a list of strings (resolves)
+		// @todo uhh move this to a single thing, this is the 3rd copy
+		const mutatedTree = JSON.stringify([{
+			...this.state.resolveTree,
+			trees: uiGenTreeList,
+		}]);
+
+		this.setState({
+			edit: null,
+		}, () => {
+			this.props.onMutatedResolveTree(mutatedTree, this.state.resolveNodes);
+		});
+
+		// const parentTree = this.state.resolveTrees.find(tree => treeUtils.byId(tree, params.uuid));
+		// const parentTreeI = this.state.resolveTrees.findIndex(tree => treeUtils.byId(tree, params.uuid));
+		// const seq = [parentTreeI].concat(treeUtils.byId(parentTree, params.uuid).toJS());
+
+
+	}
+
 	render() {
+		if (!this.state) {
+			return null;
+		}
+
 		const {
 			resolveTrees,
 			resolveTreesAsNodes,
@@ -419,6 +364,7 @@ class ResolveTreeEditor extends Component {
 					onRemoveArg={(arg) => this.handleRemoveArg(resolveDataJson, arg)}
 					onCancel={() => { this.setState({edit: null, }) }}
 					storeState={this.props.storeState}
+					onRemoveNode={this.handleRemoveNode}
 				/>
 			)}
 			<svg 
@@ -508,7 +454,7 @@ class ResolveTreeEditor extends Component {
 
 						const sourceLeft = node.getIn(['position', 'x']);
 						const sourceTop = node.getIn(['position', 'y']);
-						const targetLeft = this.state.dragToPosition.x;
+						const targetLeft = this.state.dragToPosition.x - 10;
 						const targetTop = this.state.dragToPosition.y - 10;
 
 						return (<path

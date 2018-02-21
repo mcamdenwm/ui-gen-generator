@@ -4,6 +4,7 @@ import {
 	WMTextField,
 	WMToggle,
 	WMLink,
+	WMFlatButton
 } from '@workmarket/front-end-components';
 import { map } from 'ramda';
 
@@ -84,7 +85,7 @@ class ComponentEditor extends Component {
 					width: '100%',
 				}}>
 					<WMText>
-						Selectors
+						Selectors <WMFlatButton label="+" onClick={() => { this.props.onAddSelector && this.props.onAddSelector() }} />
 					</WMText>
 					{this.getSelectors().map(selector => (
 						<div style={{

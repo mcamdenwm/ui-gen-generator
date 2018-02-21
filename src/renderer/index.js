@@ -6,6 +6,8 @@ import { Provider } from 'react-redux';
 import configureGetComponent from './app/configureGetComponent';
 import store, { db } from './app/store';
 
+const uuid = require('uuid/v4');
+
 // import editor from './editor';
 import preview from './preview';
 
@@ -274,6 +276,79 @@ configureGetComponent()
 												}
 											},
 										}],
+									}, {
+										propName: 'onAddSelector',
+										sequence: [{
+											type: 'VIEW__ADD_SELECTOR',
+											path: ['VIEW', 'newSelectorUuid'],
+											data: {
+												$$WM__resolve: {
+													type: 'fn',
+													name: 'uuid',
+													args: [],
+												},
+											},
+										}, {
+											type: 'VIEW__ADD_SELECTOR',
+											path: ['VIEW', 'resolveTrees'],
+											data: {
+												$$WM__resolve: {
+													type: 'fn',
+													name: 'call',
+													args: [{
+														$$WM__resolve: {
+															type: 'fn',
+															name: 'compose',
+															args: [{
+																$$WM__resolve: {
+																	type: 'fn',
+																	name: 'jsonStringify',
+																}
+															}, {
+																$$WM__resolve: {
+																	type: 'fn',
+																	name: 'append',
+																	args: [{
+																		uuid: {
+																			$$WM__resolve: {
+																				type: 'state',
+																				path: ['VIEW', 'newSelectorUuid'],
+																			},
+																		},
+																		type: 'selector',
+																		name: 'selector-',
+																		propName: 'label',
+																		trees: [],
+																		componentUuid: 'fa9481d8-4fda-41f4-87cb-34b6a3083a99',
+																	}],
+																},
+															}, {
+																$$WM__resolve: {
+																	type: 'fn',
+																	name: 'jsonParse',
+																},
+															}]
+														},
+													}, {
+														$$WM__resolve: {
+															type: 'state',
+															path: ['VIEW', 'resolveTrees'],
+														},
+													}],
+												},
+											},
+										}, {
+											type: 'COMPONENT_EDITOR__EDIT_SELECTOR',
+											path: ['COMPONENT_EDITOR', 'selector'],
+											data: {
+												selector: {
+													$$WM__resolve: {
+														type: 'state',
+														path: ['VIEW', 'newSelectorUuid'],
+													},
+												}
+											},
+										}]
 									}],
 								})
 							}

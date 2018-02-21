@@ -35,6 +35,7 @@ const storeConfig = {
 			'VIEW__UPDATE_TREE',
 			'VIEW__UPDATE_POSITIONS',
 			'VIEW__IGNORE',
+			'VIEW__ADD_SELECTOR',
 		],
 	},
 	COMPONENT: {
@@ -62,6 +63,7 @@ const storeConfig = {
 			'COMPONENT_EDITOR__CLOSE',
 			'COMPONENT_EDITOR__UPDATE_FIELD',
 			'COMPONENT_EDITOR__EDIT_SELECTOR',
+			'COMPONENT_EDITOR__ADD_SELECTOR',
 		],
 	},
 };

@@ -19,11 +19,15 @@ class RenderView extends Component {
 		this.transferPropsToState(nextProps);
 	}
 	transferPropsToState = (props) => {
-		configureGetComponent().then((getComponent) => {
-			this.setState({
-				getComponent,
-			});
-		})
+		configureGetComponent()
+			.then((getComponent) => {
+				this.setState({
+					getComponent,
+				});
+			})
+			.catch((e) => {
+				console.log('Failed to resolve component');
+			})
 	}
   render() {
   	if (!this.state) {
@@ -36,8 +40,20 @@ class RenderView extends Component {
   	// let resolvedArg = resolver(view)({storeState, args: [] });
 
   	// console.log();
+  	let resolverResult;
+  	let componentResult = null;
 
-  	return this.state.getComponent( resolver(view) );
+  	try {
+  		resolverResult = resolver(view);
+  		componentResult = this.state.getComponent(resolverResult);
+  	} catch (e) {
+  		console.error('Failed to render a thing', e);
+  	}
+
+  	return componentResult;
+
+
+  	// return this.state.getComponent( resolver(view) );
 		// debugger;  	
     // return this.state.getComponent(view);
   }

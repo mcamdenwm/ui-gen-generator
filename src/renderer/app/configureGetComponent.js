@@ -15,6 +15,7 @@ import { walk, writeUIGenTree } from '../utils/';
 
 import Immutable, { Map, fromJS } from 'immutable';
 import TreeUtils from 'immutable-treeutils';
+const uuid = require('uuid/v4');
 
 // Store the local configuration so we don't hit the API again
 let configuredGetComponent;
@@ -63,16 +64,13 @@ export default async () => {
 
 						return state.getIn(seq);
 					},
+					// getUIGenTree for output, combines live resolve trees and current uigen tree for rendering
 					getUIGenTree: (state, forPreview=true) => {
 						let { view, resolveTrees } = state.toJS();
 
 						if (resolveTrees) {
 							resolveTrees = JSON.parse(resolveTrees);
 						}
-
-						// resolveTrees.
-
-						// console.log(resolveTrees);
 						
 						// walk, writeUIGenTree
 						// Merge selectors and actions from tree
@@ -82,16 +80,15 @@ export default async () => {
 								...node,
 							};
 
-							if (resolveTree) {
-								// let lastResolveTree = resolveTree.trees[0];
-								// let mutatedLastResolveTree = walk(lastResolveTree, (tree) => {
-								// 	console.log(tree);
-								// 	return tree;
-								// });
+							if (resolveTree && resolveTree.trees.length) {
+								let data = resolveTree.trees;
+								if (data.length === 1) {
+									data = resolveTree.trees[0];
+								}
 
 								res.selectors = [{
 									propName: resolveTree.propName,
-									data: (resolveTree && resolveTree.trees[0]) || {},
+									data: data || {},
 								}];
 							}
 
@@ -114,7 +111,17 @@ export default async () => {
 						return {
 							display: display,
 						};
-					}
+					},
+					uuid: () => {
+						let u = uuid();
+						console.log('New uuid issued', u);
+						return u;
+					},
+					jsonParse: (str) => {
+						console.log('JSON.parse, ', str);
+						return JSON.parse(str);
+					},
+					jsonStringify: JSON.stringify,
 				},
 				store,
 				components: {

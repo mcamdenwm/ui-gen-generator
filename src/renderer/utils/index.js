@@ -51,7 +51,7 @@ export const writeUIGenTree = (functionTree) => {
 			return block.name;
 		}
 
-		if (block.type === 'state' && block.args.length) {
+		if (block.type === 'state' && block.args && block.args.length) {
 			block.path = block.args;
 		}
 
