@@ -135,6 +135,15 @@ configureGetComponent()
 									children: [{
 										type: 'ResolveTreeEditor',
 										selectors: [{
+											propName: 'editingSelector',
+											data: {
+												$$WM__resolve: {
+													type: 'state',
+													path: ['COMPONENT_EDITOR', 'selector', 'selector'],
+												},
+											},
+											toJS: true,
+										}, {
 											propName: 'storeState',
 											data: {
 												$$WM__resolve: {
@@ -205,6 +214,15 @@ configureGetComponent()
 								getComponent({ 
 									type: 'ComponentEditor',
 									selectors: [{
+										propName: 'editingSelector',
+										data: {
+											$$WM__resolve: {
+												type: 'state',
+												path: ['COMPONENT_EDITOR', 'selector', 'selector'],
+											},
+										},
+										toJS: true,
+									}, {
 										propName: 'component',
 										data: {
 											$$WM__resolve: {
@@ -316,8 +334,7 @@ configureGetComponent()
 																			},
 																		},
 																		type: 'selector',
-																		name: 'selector-',
-																		propName: 'label',
+																		propName: '',
 																		trees: [],
 																		componentUuid: 'fa9481d8-4fda-41f4-87cb-34b6a3083a99',
 																	}],
@@ -333,6 +350,118 @@ configureGetComponent()
 														$$WM__resolve: {
 															type: 'state',
 															path: ['VIEW', 'resolveTrees'],
+														},
+													}],
+												},
+											},
+										}, {
+											type: 'COMPONENT_EDITOR__EDIT_SELECTOR',
+											path: ['COMPONENT_EDITOR', 'selector'],
+											data: {
+												selector: {
+													$$WM__resolve: {
+														type: 'state',
+														path: ['VIEW', 'newSelectorUuid'],
+													},
+												}
+											},
+										}]
+									}, {
+										propName: 'onDeleteSelector',
+										sequence: [{
+											type: 'VIEW__DELETE_SELECTOR',
+											path: ['VIEW', 'resolveTrees'],
+											data: {
+												$$WM__resolve: {
+													type: 'fn',
+													name: 'call',
+													args: [{
+														$$WM__resolve: {
+															type: 'fn',
+															name: 'compose',
+															args: [{
+																$$WM__resolve: {
+																	type: 'fn',
+																	name: 'jsonStringify',
+																}
+															}, {
+																$$WM__resolve: {
+																	type: 'fn',
+																	name: 'filter',
+																	args: [{ 
+																		$$WM__resolve: {
+																			type: 'fn',
+																			name: 'compose',
+																			args: [{
+																				$$WM__resolve: {
+																					type: 'fn',
+																					name: 'not',
+																				},
+																			}, {
+																				$$WM__resolve: {
+																					type: 'fn',
+																					name: 'propEq',
+																					args: ['uuid', {
+																						$$WM__resolve: {
+																							type: 'event',
+																							index: 0,
+																						},
+																					}]
+																				},
+																			}],
+																		},
+																	}],
+																},
+															}, {
+																$$WM__resolve: {
+																	type: 'fn',
+																	name: 'jsonParse',
+																},
+															}]
+														},
+													}, {
+														$$WM__resolve: {
+															type: 'state',
+															path: ['VIEW', 'resolveTrees'],
+														},
+													}],
+												},
+											},
+										}, {
+											type: 'COMPONENT_EDITOR__EDIT_SELECTOR',
+											path: ['COMPONENT_EDITOR', 'selector'],
+											data: {
+												selector: {
+													$$WM__resolve: {
+														type: 'state',
+														path: ['VIEW', 'newSelectorUuid'],
+													},
+												}
+											},
+										}]
+									}, {
+										propName: 'onUpdateSelector',
+										sequence: [{
+											type: 'VIEW__EDIT_SELECTOR',
+											path: ['VIEW', 'resolveTrees'],
+											data: {
+												$$WM__resolve: {
+													type: 'fn',
+													name: 'updateSelector',
+													args: [{
+														$$WM__resolve: {
+															type: 'state',
+															path: ['VIEW', 'resolveTrees'],
+														},
+													}, {
+														$$WM__resolve: {
+															type: 'event',
+															index: 0,
+														},
+													}, {
+														$$WM__resolve: {
+															type: 'event',
+															index: 1,
 														},
 													}],
 												},

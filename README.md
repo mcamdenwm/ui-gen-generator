@@ -10,6 +10,17 @@
 [] Drag component to edit area
 [] Actions ??
 
+### Prototype Flow
+
+[] Create View
+[] Create input[name]
+[] Bind [name]onChange to store
+[] Bind [value] to store
+[] Create button[execute]
+[] Bind [execute]onClick to INITIATE_FETCH
+[] Describe INITIATE_FETCH SUCCESS, REQUEST, ERROR transforms
+[] After fetch (second action) clear input via store
+
 ## 0.0.1 version
 
 [] Query UI Gen DB

@@ -8,8 +8,10 @@ import {
 } from '@workmarket/front-end-components';
 import { map } from 'ramda';
 
+import SelectorContainer from './SelectorContainer';
 import extractPropTypes from './extractPropTypes';
 
+// This is neat, but we probably are wasting some space/build cycles with this
 async function getComponent(component) {
 	if (!component) {
 		return Promise.reject('No component');
@@ -87,13 +89,14 @@ class ComponentEditor extends Component {
 					<WMText>
 						Selectors <WMFlatButton label="+" onClick={() => { this.props.onAddSelector && this.props.onAddSelector() }} />
 					</WMText>
-					{this.getSelectors().map(selector => (
-						<div style={{
-							marginLeft: 10,
-						}}>
-							<WMLink onClick={(e) => {e.stopPropagation(); e.preventDefault(); this.props.onEditSelector && this.props.onEditSelector(selector.uuid) }}>{selector.propName}:{selector.name}</WMLink>
-						</div>
-					))}
+					<SelectorContainer
+						selectors={this.getSelectors()}
+						props={Object.keys(this.state.componentPropTypes)}
+						onClick={(uuid) => {this.props.onEditSelector && this.props.onEditSelector(uuid)}}
+						editing={this.props.editingSelector}
+						onUpdateSelector={(selector, propName) => { this.props.onUpdateSelector && this.props.onUpdateSelector(selector, propName); }}
+						onDeleteSelector={(uuid) => { this.props.onDeleteSelector && this.props.onDeleteSelector(uuid); }}
+					/>
 				</div>
 				<div style={{
 					width: '100%',

@@ -480,19 +480,19 @@ export default (props) => {
 		resolveTrees = JSON.parse(resolveTrees);
 	}
 
+	const editingResolveTree = resolveTrees.find(rt => rt.uuid === props.editingSelector);
+
 	const storeState = {
 		VIEW: Map({
 			storeState: props.storeState,
 		}),
 	}
 
-	console.log(storeState);
-	
 	return (
 		<ResolveTreeEditor
 			{...props}
 			storeState={storeState}
-			resolveTree={resolveTrees[0]}
+			resolveTree={editingResolveTree}
 		/>
 	);
 };

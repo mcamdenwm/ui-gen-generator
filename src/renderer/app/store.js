@@ -36,6 +36,8 @@ const storeConfig = {
 			'VIEW__UPDATE_POSITIONS',
 			'VIEW__IGNORE',
 			'VIEW__ADD_SELECTOR',
+			'VIEW__EDIT_SELECTOR',
+			'VIEW__DELETE_SELECTOR',
 		],
 	},
 	COMPONENT: {

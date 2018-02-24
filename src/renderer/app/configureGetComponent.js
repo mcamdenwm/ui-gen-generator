@@ -121,7 +121,25 @@ export default async () => {
 						console.log('JSON.parse, ', str);
 						return JSON.parse(str);
 					},
-					jsonStringify: JSON.stringify,
+					jsonStringify: (obj) => {
+						console.log('JSON.stringify', obj);
+						return JSON.stringify(obj);
+					},
+					updateSelector: (resolveTreesStr, selector, propName) => {
+						const resolveTrees = JSON.parse(resolveTreesStr);
+						const mutResolveTrees = resolveTrees.map(tree => {
+							if (tree.uuid === selector.uuid) {
+								return {
+									...tree,
+									propName,
+								};
+							}
+
+							return tree;
+						});
+
+						return JSON.stringify(mutResolveTrees);
+					}
 				},
 				store,
 				components: {

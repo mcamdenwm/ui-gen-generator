@@ -3,6 +3,7 @@ const uuid = require('uuid/v4');
 import ramdaApi from './ramda';
 import { fromJS } from 'immutable';
 import { blockNameRenderer } from '../../utils/';
+import { WMAutocomplete, WMTextField } from '@workmarket/front-end-components';
 
 const style = {
 	position: 'absolute',
@@ -37,9 +38,9 @@ class ResolveParamsEditor extends Component {
 		});
 	}
 
-	handleChangeFn = (e) => {
+	handleChangeFn = (value) => {
 		this.setState({
-			name: e.target.value,
+			name: value,
 		});
 	}
 
@@ -133,11 +134,17 @@ class ResolveParamsEditor extends Component {
 				</div>
 				{
 					this.state.type === 'fn' && (
-						<select name="fn-selector" value={this.state.name} onChange={this.handleChangeFn}>
-						{ramdaApi.map((api, i) => (
-							<option key={i} value={api.name}>{api.name}</option>
-						))}
-						</select>
+						<div style={{marginBottom: 10}}>
+							<WMAutocomplete
+								floatingLabelText="fn"
+								hintText="toUpper"
+								dataSource={ramdaApi.map(api => api.name)}
+								filter="caseInsensitiveFilter"
+								maxSearchResults={ 10 }
+								onNewRequest={ (a) => { this.handleChangeFn(a) } }
+								searchText={this.state.name}
+							/>
+						</div>
 					)
 				}
 				{
