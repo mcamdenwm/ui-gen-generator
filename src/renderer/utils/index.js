@@ -1,6 +1,8 @@
 import { getResolver } from '@workmarket/ui-generation/dist-es/data';
 import * as R from 'ramda';
 const uuid = require('uuid/v4');
+import { RESOLVE } from '../constants';
+import _ from 'lodash';
 
 import blockNameRenderer from './blockNameRenderer';
 
@@ -63,14 +65,15 @@ export const writeUIGenTree = (functionTree) => {
 	});
 }
 
-function walkResolve(stack, cb) {
+// this be da right one
+export const walkResolve = (stack, cb) => {
 	function walker(node) {
 		if (typeof(node) === 'string') {
-			return {
+			return cb({
 				type: 'string',
 				name: node,
-				uuid: '__',
-			};
+				uuid: uuid(),
+			});
 		}
 
 		let keys = Object.keys(node);
@@ -79,9 +82,16 @@ function walkResolve(stack, cb) {
 		}
 
 		let block = Object.assign({}, node);
-		block.args = _.map(block.args, walker);
 
-		return block;
+		if (block.args) {
+			block.args = _.map(block.args, walker);
+		}
+
+		if (block.path) {
+			block.path = _.map(block.path, walker);
+		}
+
+		return cb(block);
 	}
 
 	return walker(stack);

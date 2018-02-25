@@ -22,11 +22,6 @@ const storeConfig = {
 		initialState: {
 			data: {
 				...state,
-				FOO: {
-					bar: {
-						baz: 'Ayyyoo',
-					},
-				},
 			},
 		},
 		handlers: [

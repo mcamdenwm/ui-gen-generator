@@ -157,7 +157,7 @@ class ResolveTreeEditor extends Component {
 		} else {
 			newResolve = {
 				uuid: operationUuid,
-				path: ['VIEW', 'storeState', 'FOO', 'bar', 'baz'],
+				path: ['FOO', 'bar', 'baz'],
 				type: 'state',
 			};
 		}
@@ -482,11 +482,14 @@ export default (props) => {
 
 	const editingResolveTree = resolveTrees.find(rt => rt.uuid === props.editingSelector);
 
-	const storeState = {
-		VIEW: Map({
-			storeState: props.storeState,
-		}),
-	}
+	// Need to do some weird, keys of storeState to capture all first level path names
+	
+	let namespaces = ['FOO']; // generate this in the future
+	let storeState = {};
+	
+	namespaces.forEach(key => {
+		storeState[key] = props.storeState.get(key);
+	});
 
 	return (
 		<ResolveTreeEditor

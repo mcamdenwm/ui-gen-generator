@@ -11,7 +11,7 @@ import Tree from './Tree';
 import ComponentEditor from '../components/ComponentEditor';
 import ViewTreeRenderer from '../components/ViewTreeRenderer';
 import ResolveTreeEditor from '../components/ResolveTreeEditor';
-import { walk, writeUIGenTree } from '../utils/';
+import { walk, writeUIGenTree, walkResolve } from '../utils/';
 
 import Immutable, { Map, fromJS } from 'immutable';
 import TreeUtils from 'immutable-treeutils';
@@ -76,6 +76,8 @@ export default async () => {
 						if (resolveTrees) {
 							resolveTrees = JSON.parse(resolveTrees);
 						}
+
+						console.log('Pre-mutation', view);
 						
 						// walk, writeUIGenTree
 						// Merge selectors and actions from tree
@@ -87,8 +89,32 @@ export default async () => {
 
 							if (resolveTree && resolveTree.trees.length) {
 								let data = resolveTree.trees;
+
+								data = data
+									.map(datum => {
+										return walkResolve(datum, (node) => {
+											// Optimize
+											if (node.type === 'state' && node.args) {
+												delete node.args;
+											}
+
+											if (node.type !== 'state' && node.path) {
+												delete node.path;
+											}
+
+											// Generate protected path
+											if (node.type === 'state') {
+												node.path.unshift('VIEW', 'storeState');
+											}
+
+											console.log('Resolving', node);
+											return node;
+										});
+									})
+								.map(writeUIGenTree);
+
 								if (data.length === 1) {
-									data = resolveTree.trees[0];
+									data = data[0];
 								}
 
 								res.selectors = [{
@@ -96,6 +122,8 @@ export default async () => {
 									data: data || {},
 								}];
 							}
+
+							console.log('res', res);
 
 							return res;
 						});
