@@ -212,8 +212,19 @@ configureGetComponent()
 												path: ['VIEW', 'resolveTrees'],
 												data: {
 													$$WM__resolve: {
-														type: 'event',
-														index: 0,
+														type: 'fn',
+														name: 'mergeResolveTrees',
+														args: [{
+															$$WM__resolve: {
+																type: 'event',
+																index: 0,
+															},															
+														}, {
+															$$WM__resolve: {
+																type: 'state',
+																path: ['VIEW', 'resolveTrees'],
+															},
+														}]
 													},
 												},
 											}, {

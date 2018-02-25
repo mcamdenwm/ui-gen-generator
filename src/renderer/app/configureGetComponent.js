@@ -142,8 +142,6 @@ export default async () => {
 								}];
 							}
 
-							console.log('res', res);
-
 							return res;
 						});
 
@@ -179,8 +177,9 @@ export default async () => {
 						console.log('JSON.stringify', obj);
 						return JSON.stringify.apply(null, [obj, f, n]);
 					},
-					updateSelector: (resolveTreesStr, selector, propName) => {
+					updateSelector: (resolveTreesStr, selectorStr, propName) => {
 						const resolveTrees = JSON.parse(resolveTreesStr);
+						const selector = JSON.parse(selectorStr);
 						const mutResolveTrees = resolveTrees.map(tree => {
 							if (tree.uuid === selector.uuid) {
 								return {
@@ -194,6 +193,20 @@ export default async () => {
 
 						return JSON.stringify(mutResolveTrees);
 					},
+					mergeResolveTrees: (updatedResolveTreeStr, resolveTreesStr) => {
+						const updatedResolveTreeList = fromJS(JSON.parse(updatedResolveTreeStr));
+						const resolveTrees = fromJS(JSON.parse(resolveTreesStr));
+
+						const mutResolveTrees = resolveTrees.map(rt => {
+							const update = updatedResolveTreeList.find(u => u.get('uuid') === rt.get('uuid'));
+							if (update) {
+								return rt.merge(update);
+							}
+							return rt;
+						});
+
+						return JSON.stringify(mutResolveTrees.toJS());
+					}
 				},
 				store,
 				components: {

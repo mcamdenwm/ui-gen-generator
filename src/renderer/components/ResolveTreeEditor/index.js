@@ -345,8 +345,8 @@ class ResolveTreeEditor extends Component {
 			const editResolve = resolveTreesAsNodes.flatten(1).find(n => n.get('uuid') === edit);
 			const editNode = resolveNodes.find((n) => n.get('operationUuid') === edit);
 			editorPosition = {
-				left: editNode.getIn(['position', 'x']),
-				top: editNode.getIn(['position', 'y']),
+				left: editNode && editNode.getIn(['position', 'x']) || 0,
+				top: editNode && editNode.getIn(['position', 'y']) || 0,
 			};
 			resolveDataJson = editResolve.toJS();
 			showEditor = true;
@@ -480,6 +480,7 @@ export default (props) => {
 		resolveTrees = JSON.parse(resolveTrees);
 	}
 
+	// Localize resolve trees to editing resolve prop (i.e., selector, propName)
 	const editingResolveTree = resolveTrees.find(rt => rt.uuid === props.editingSelector);
 
 	// Need to do some weird, keys of storeState to capture all first level path names

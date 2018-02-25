@@ -115,7 +115,7 @@ class ComponentEditor extends Component {
 						props={Object.keys(this.state.componentPropTypes)}
 						onClick={(uuid) => {this.props.onEditSelector && this.props.onEditSelector(uuid)}}
 						editing={this.props.editingSelector}
-						onUpdateSelector={(selector, propName) => { this.props.onUpdateSelector && this.props.onUpdateSelector(selector, propName); }}
+						onUpdateSelector={(selector, propName) => { this.props.onUpdateSelector && this.props.onUpdateSelector(JSON.stringify(selector), propName); }}
 						onDeleteSelector={(uuid) => { this.props.onDeleteSelector && this.props.onDeleteSelector(uuid); }}
 					/>
 				</div>

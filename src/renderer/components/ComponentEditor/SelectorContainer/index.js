@@ -6,10 +6,10 @@ const SelectorContainer = ({ selectors, props, editing, onClick, onUpdateSelecto
 	let availableProps = props.filter(p => !(selectors.find(s => s.propName === p)));
 	return (
 		<div>
-			{selectors.map(selector => (
+			{selectors.map( (selector, i) => (
 				<div style={{
 					marginLeft: 10,
-				}}>
+				}} key={i}>
 					{editing === selector.uuid && (
 						<SelectorEditor
 							props={availableProps}
