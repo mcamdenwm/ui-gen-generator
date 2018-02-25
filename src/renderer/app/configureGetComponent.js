@@ -17,6 +17,11 @@ import Immutable, { Map, fromJS } from 'immutable';
 import TreeUtils from 'immutable-treeutils';
 const uuid = require('uuid/v4');
 
+import AceEditor from 'react-ace';
+import 'brace/mode/javascript';
+import 'brace/mode/json';
+import 'brace/theme/github';
+
 // Store the local configuration so we don't hit the API again
 let configuredGetComponent;
 
@@ -65,7 +70,7 @@ export default async () => {
 						return state.getIn(seq);
 					},
 					// getUIGenTree for output, combines live resolve trees and current uigen tree for rendering
-					getUIGenTree: (state, forPreview=true) => {
+					getUIGenTree: (state, type) => {
 						let { view, resolveTrees } = state.toJS();
 
 						if (resolveTrees) {
@@ -96,15 +101,17 @@ export default async () => {
 						});
 
 						console.log('mutatedTree', mutatedTree);
+						
+						if (type === 'json-editor') {
+							return JSON.stringify(mutatedTree, null, 2);
+						}
+
 						return JSON.stringify(mutatedTree);
 					},
-					getMainViewStyle: (selectorUuid, type) => {
+					getMainViewStyle: (activeMainView, view) => {
 						let display = 'none';
 
-						if (type === 'resolve-editor' && selectorUuid) {
-							display = 'block';
-						}
-						else if (type === 'preview' && !selectorUuid) {
+						if (activeMainView === view) {
 							display = 'block';
 						}
 
@@ -151,6 +158,7 @@ export default async () => {
 					ComponentEditor,
 					ViewTreeRenderer,
 					ResolveTreeEditor,
+					AceEditor,
 				},
 			});
 

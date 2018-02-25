@@ -6,6 +6,10 @@ import { Provider } from 'react-redux';
 import configureGetComponent from './app/configureGetComponent';
 import store, { db } from './app/store';
 
+require('brace/mode/java');
+require('brace/theme/github');
+
+
 const uuid = require('uuid/v4');
 
 // import editor from './editor';
@@ -75,13 +79,25 @@ configureGetComponent()
 												type: 'COMPONENT_EDITOR__EDIT_SELECTOR',
 												path: ['COMPONENT_EDITOR', 'selector'],
 												data: null,
+											}, {
+												type: 'APPLICATION__SET_MAIN_VIEW',
+												path: ['APPLICATION', 'mainView'],
+												data: 'preview',
 											}]
 										}]
 									}, {
 										type: 'WMFlatButton',
 										props: {
-											label: '[Resolver Editor]'
-										}
+											label: '[JSON Editor]'
+										},
+										actions: [{
+											propName: 'onClick',
+											sequence: [{
+												type: 'APPLICATION__SET_MAIN_VIEW',
+												path: ['APPLICATION', 'mainView'],
+												data: 'json-editor',
+											}]
+										}],
 									}]
 								})
 							}
@@ -101,7 +117,7 @@ configureGetComponent()
 												args: [{
 													$$WM__resolve: {
 														type: 'state',
-														path: ['COMPONENT_EDITOR', 'selector'],
+														path: ['APPLICATION', 'mainView'],
 													},
 												}, 'preview'],
 											},
@@ -126,7 +142,7 @@ configureGetComponent()
 												args: [{
 													$$WM__resolve: {
 														type: 'state',
-														path: ['COMPONENT_EDITOR', 'selector'],
+														path: ['APPLICATION', 'mainView'],
 													},
 												}, 'resolve-editor'],
 											},
@@ -204,6 +220,68 @@ configureGetComponent()
 											}]
 										}]
 									}]
+								})
+							}
+							{
+								getComponent({
+									type: 'WMGeneric',
+									props: {
+										className: 'json-editor',
+										key: 'json-editor',
+									},
+									selectors: [{
+										propName: 'style',
+										data: {
+											$$WM__resolve: {
+												type: 'fn',
+												name: 'getMainViewStyle',
+												args: [{
+													$$WM__resolve: {
+														type: 'state',
+														path: ['APPLICATION', 'mainView'],
+													},
+												}, 'json-editor'],
+											},
+										},
+									}],
+									children: [ {
+										type: 'AceEditor',
+										props: {										
+											mode: 'json',
+											theme: 'github',
+											value: `{
+												"foo" : [1, 2, 3]
+											}`,
+										},
+										selectors: [{
+											propName: 'value',
+											data: {
+												$$WM__resolve: {
+													type: 'fn',
+													name: 'getUIGenTree',
+													args: [{
+														$$WM__resolve: {
+															type: 'state',
+															path: ['VIEW'],
+														},
+													}, 'json-editor']
+												},
+											},
+										}],
+										actions: [{
+											propName: 'onChange',
+											sequence: [{
+												type: 'JSON_EDITOR__UPDATE',
+												path: ['JSON_EDITOR', 'value'],
+												data: {
+													$$WM__resolve: {
+														type: 'event',
+														index: 0,
+													},
+												},
+											}]
+										}],
+									} ]
 								})
 							}
 						</div>
@@ -293,6 +371,10 @@ configureGetComponent()
 													},
 												}
 											},
+										}, {
+											type: 'APPLICATION__SET_MAIN_VIEW',
+											path: ['APPLICATION', 'mainView'],
+											data: 'resolve-editor',
 										}],
 									}, {
 										propName: 'onAddSelector',

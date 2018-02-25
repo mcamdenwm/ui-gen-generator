@@ -68,6 +68,26 @@ const storeConfig = {
 			'COMPONENT_EDITOR__ADD_SELECTOR',
 		],
 	},
+	JSON_EDITOR: {
+		initialState: {
+			data: {
+				value: '',
+			}
+		},
+		handlers: [
+			'JSON_EDITOR__UPDATE',
+		]
+	},
+	APPLICATION: {
+		initialState: {
+			data: {
+				mainView: 'preview'
+			},
+		},
+		handlers: [
+			'APPLICATION__SET_MAIN_VIEW',
+		],
+	},
 };
 
 const persistState = store => next => action => {

@@ -39,6 +39,7 @@
     "lowdb": "^1.0.0",
     "ramda": "^0.25.0",
     "react": "15.6.1",
+    "react-ace": "^5.9.0",
     "react-dom": "15.6.1",
     "react-json": "^0.2.1",
     "react-motion": "^0.5.2",
