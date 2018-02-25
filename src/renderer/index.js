@@ -43,6 +43,25 @@ configureGetComponent()
 						}}>
 							{
 								getComponent({
+									type: 'WMGeneric',
+									children: [{
+										type: 'WMFlatButton',
+										props: {
+											label: 'Store',
+										},
+										actions: [{
+											propName: 'onClick',
+											sequence: [{
+												type: 'APPLICATION__SET_MAIN_VIEW',
+												path: ['APPLICATION', 'mainView'],
+												data: 'store-editor',
+											}]
+										}],
+									}]
+								})
+							}
+							{
+								getComponent({
 									type: 'ViewTreeRenderer',
 									selectors: [{
 										propName: 'tree',
@@ -249,9 +268,6 @@ configureGetComponent()
 										props: {										
 											mode: 'json',
 											theme: 'github',
-											value: `{
-												"foo" : [1, 2, 3]
-											}`,
 										},
 										selectors: [{
 											propName: 'value',
@@ -281,6 +297,136 @@ configureGetComponent()
 												},
 											}]
 										}],
+									} ]
+								})
+							}
+							{
+								getComponent({
+									type: 'WMGeneric',
+									props: {
+										className: 'store-editor',
+										key: 'store-editor',
+									},
+									selectors: [{
+										propName: 'style',
+										data: {
+											$$WM__resolve: {
+												type: 'fn',
+												name: 'getMainViewStyle',
+												args: [{
+													$$WM__resolve: {
+														type: 'state',
+														path: ['APPLICATION', 'mainView'],
+													},
+												}, 'store-editor'],
+											},
+										},
+									}],
+									children: [ {
+										type: 'AceEditor',
+										props: {										
+											mode: 'json',
+											theme: 'github',
+										},
+										selectors: [{
+											propName: 'value',
+											data: {
+												$$WM__resolve: {
+													type: 'fn',
+													name: 'renderStoreAsJson',
+													args: [{
+														$$WM__resolve: {
+															type: 'state',
+															path: ['VIEW', 'storeState'],
+														},
+													}, {
+														$$WM__resolve: {
+															type: 'state',
+															path: ['VIEW', 'storeHandlers'],
+														},
+													}],
+												},
+											},
+										}],
+										actions: [{
+											propName: 'onValidate',
+											sequence: [{
+												type: 'STORE_EDITOR__SET_ANNOTATIONS',
+												path: ['STORE_EDITOR', 'annotations'],
+												data: {
+													$$WM__resolve: {
+														type: 'event',
+														index: 0,
+													},
+												}
+											}, {
+												type: 'STORE_EDITOR__SET_VALID',
+												path: ['STORE_EDITOR', 'isValid'],
+												data: {
+													$$WM__resolve: {
+														type: 'fn',
+														name: 'not',
+														args: [{
+															$$WM__resolve: {
+																type: 'fn',
+																name: 'anyErrors',
+																args: [{
+																	$$WM__resolve: {
+																		type: 'state',
+																		path: ['STORE_EDITOR', 'annotations'],
+																	},
+																}],
+															},															
+														}],
+													},
+												},
+											}],
+										}, {
+											propName: 'onChange',
+											sequence: [{
+												type: 'VIEW__UPDATE_STORE_DATA',
+												path: ['VIEW', 'storeState'],
+												conditional: {
+													$$WM__resolve: {
+														type: 'state',
+														path: ['STORE_EDITOR', 'isValid'],
+													},
+												},
+												data: {
+													$$WM__resolve: {
+														type: 'fn',
+														name: 'getStoreInitialData',
+														args: [{
+															$$WM__resolve: {
+																type: 'event',
+																index: 0,
+															},
+														}],
+													}
+												},
+											}, {
+												type: 'VIEW__UPDATE_STORE_HANDLERS',
+												path: ['VIEW', 'storeHandlers'],
+												conditional: {
+													$$WM__resolve: {
+														type: 'state',
+														path: ['STORE_EDITOR', 'isValid'],
+													},
+												},
+												data: {
+													$$WM__resolve: {
+														type: 'fn',
+														name: 'getStoreHandlers',
+														args: [{
+															$$WM__resolve: {
+																type: 'event',
+																index: 0,
+															},
+														}],
+													}
+												},
+											}]
+										}]
 									} ]
 								})
 							}
@@ -447,6 +593,10 @@ configureGetComponent()
 													},
 												}
 											},
+										}, {
+											type: 'APPLICATION__SET_MAIN_VIEW',
+											path: ['APPLICATION', 'mainView'],
+											data: 'resolve-editor',
 										}]
 									}, {
 										propName: 'onDeleteSelector',

@@ -40,6 +40,25 @@ export default async () => {
 			configuredGetComponent = configureGetComponent({
 				api: client,
 				functions: {
+					getStoreInitialData: (storeAsJson) => {
+						return JSON.parse(storeAsJson).initialState.data;
+					},
+					getStoreHandlers: (storeAsJson) => {
+						return JSON.parse(storeAsJson).handlers;
+					},
+					renderStoreAsJson: (storeState, storeHandlers) => {
+						return JSON.stringify({
+							initialState: {
+								data: {
+									...storeState.toJS(),
+								},
+							},
+							handlers: [].concat(storeHandlers.toJS() || [])
+						}, null, 4);
+					},
+					anyErrors: (annotations) => {
+						return !!annotations.filter(a => a.type === 'error').length;
+					},
 					log: (n) => {
 						// console.log(n);
 						return n;
@@ -156,9 +175,9 @@ export default async () => {
 						console.log('JSON.parse, ', str);
 						return JSON.parse(str);
 					},
-					jsonStringify: (obj) => {
+					jsonStringify: (obj, f, n) => {
 						console.log('JSON.stringify', obj);
-						return JSON.stringify(obj);
+						return JSON.stringify.apply(null, [obj, f, n]);
 					},
 					updateSelector: (resolveTreesStr, selector, propName) => {
 						const resolveTrees = JSON.parse(resolveTreesStr);

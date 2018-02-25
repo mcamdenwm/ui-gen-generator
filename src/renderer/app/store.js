@@ -33,18 +33,8 @@ const storeConfig = {
 			'VIEW__ADD_SELECTOR',
 			'VIEW__EDIT_SELECTOR',
 			'VIEW__DELETE_SELECTOR',
-		],
-	},
-	COMPONENT: {
-		initialState: {
-			data: {
-				modalVisible: false,
-				component: 'fa9481d8-4fda-41f4-87cb-34b6a3083a99',
-			},
-		},
-		handlers: [
-			'COMPONENT__EDIT',
-			'COMPONENT_DADS',
+			'VIEW__UPDATE_STORE_DATA',
+			'VIEW__UPDATE_STORE_HANDLERS',
 		],
 	},
 	COMPONENT_EDITOR: {
@@ -82,6 +72,18 @@ const storeConfig = {
 		handlers: [
 			'APPLICATION__SET_MAIN_VIEW',
 		],
+	},
+	STORE_EDITOR: {
+		initialState: {
+			data: {
+				isValid: true,
+				annotations: [],
+			},
+		},
+		handlers: [
+			'STORE_EDITOR__SET_VALID',
+			'STORE_EDITOR__SET_ANNOTATIONS'
+		],		
 	},
 };
 
