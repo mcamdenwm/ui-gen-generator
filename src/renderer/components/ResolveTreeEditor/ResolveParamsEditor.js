@@ -74,6 +74,7 @@ class ResolveParamsEditor extends Component {
 		const {
 			name,
 			type,
+			pathArgs,
 		} = this.state;
 
 		const block = {
@@ -82,10 +83,10 @@ class ResolveParamsEditor extends Component {
 			uuid,
 		};
 
-		if (this.props.type === 'state') {
-			block.path = this.state.pathArgs;
+		if (type === 'state') {
+			block.path = pathArgs;
 		} else {
-			block.args = this.state.pathArgs;
+			block.args = pathArgs;
 		}
 
 		this.props.onSave(block);

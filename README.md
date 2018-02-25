@@ -41,3 +41,7 @@
 [] Entity mapping
 [] Fetch Action
 [] Material UI fonts
+
+# Todo
+
+[] Delete nodes when selectors are deleted

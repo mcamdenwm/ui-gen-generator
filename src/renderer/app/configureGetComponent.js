@@ -125,7 +125,8 @@ export default async () => {
 												}
 
 												// Generate protected path
-												if (node.type === 'state') {
+												// Unless showing to the user
+												if (node.type === 'state' && type !== 'json-editor') {
 													node.path.unshift('VIEW', 'storeState');
 												}
 
@@ -143,6 +144,10 @@ export default async () => {
 										data: data || {},										
 									});
 								});
+							}
+
+							if (!res.selectors.length) {
+								delete res.selectors;
 							}
 
 							return res;
