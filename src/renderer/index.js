@@ -107,7 +107,7 @@ configureGetComponent()
 									}, {
 										type: 'WMFlatButton',
 										props: {
-											label: '[JSON Editor]'
+											label: '[AS JSON]'
 										},
 										actions: [{
 											propName: 'onClick',
@@ -268,6 +268,7 @@ configureGetComponent()
 										props: {										
 											mode: 'json',
 											theme: 'github',
+											readOnly: true,
 										},
 										selectors: [{
 											propName: 'value',
@@ -708,6 +709,35 @@ configureGetComponent()
 														path: ['VIEW', 'newSelectorUuid'],
 													},
 												}
+											},
+										}]
+									}, {
+										propName: 'onChangeType',
+										sequence: [{
+											type: 'VIEW__UPDATE_TREE',
+											path: ['VIEW', 'view'],
+											data: {
+												$$WM__resolve: {
+													type: 'fn',
+													name: 'updateComponentNode',
+													// (uuid, data, state)
+													args: [{
+														$$WM__resolve: {
+															type: 'state',
+															path: ['COMPONENT_EDITOR', 'component'],
+														},
+													}, {
+														$$WM__resolve: {
+															type: 'event',
+															index: 0,
+														},
+													}, {
+														$$WM__resolve: {
+															type: 'state',
+															path: ['VIEW', 'view'],
+														},
+													}],
+												},
 											},
 										}]
 									}],

@@ -42,7 +42,7 @@ const storeConfig = {
 			data: {
 				open: false,
 				component: 'fa9481d8-4fda-41f4-87cb-34b6a3083a99',
-				selector: null,
+				selector: {},
 			},
 		},
 		handlers: [

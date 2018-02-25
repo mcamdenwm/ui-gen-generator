@@ -64,6 +64,7 @@ export default async () => {
 						return n;
 					},
 					updateComponentNode: (uuid, data, state) => {
+						debugger;
 						if (!state || typeof uuid !== 'string') {
 							return {};
 						}
@@ -126,7 +127,6 @@ export default async () => {
 												node.path.unshift('VIEW', 'storeState');
 											}
 
-											console.log('Resolving', node);
 											return node;
 										});
 									})
@@ -193,7 +193,7 @@ export default async () => {
 						});
 
 						return JSON.stringify(mutResolveTrees);
-					}
+					},
 				},
 				store,
 				components: {

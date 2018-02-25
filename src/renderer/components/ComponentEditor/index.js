@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
-import {
+import * as Components from '@workmarket/front-end-components';
+import { map } from 'ramda';
+
+const {
 	WMText,
 	WMTextField,
 	WMToggle,
 	WMLink,
-	WMFlatButton
-} from '@workmarket/front-end-components';
-import { map } from 'ramda';
+	WMFlatButton,
+	WMAutocomplete
+} = Components;
 
 import SelectorContainer from './SelectorContainer';
 import extractPropTypes from './extractPropTypes';
@@ -17,7 +20,7 @@ async function getComponent(component) {
 		return Promise.reject('No component');
 	}
 
-	console.log('getComponent for ', component);
+	console.info('getComponent for ', component);
 
 	return import(`@workmarket/front-end-components/dist-es/${component}/index.js.flow`);
 }
@@ -36,7 +39,6 @@ class ComponentEditor extends Component {
 	}
 
 	hydratePropTypes = (type) => {
-		console.log('Get propTypes for ', type);
 		getComponent(type).then((componentDef) => {
 			const Component = componentDef.default;
 
@@ -52,8 +54,27 @@ class ComponentEditor extends Component {
 	}
 
 	render() {
+		const componentType = this.props.component.get('type');
+		const componentTypes = [].concat(Object.keys(Components).filter(n => n !== 'commonStyles'), componentType);
+
 		return (
 			<div style={{ overflow: 'auto', height: '100vh' }}>
+				<div style={{
+					width: '100%',
+				}}>
+					<WMText>
+						Type
+					</WMText>
+					<WMAutocomplete
+						floatingLabelText="Type"
+						hintText="WMFlatButton"
+						dataSource={componentTypes}
+						filter="caseInsensitiveFilter"
+						maxSearchResults={ 10 }
+						onNewRequest={ (a) => { this.props.onChangeType && this.props.onChangeType({type: a}, this.props.component.get('uuid')) } }
+						searchText={componentType}
+					/>
+				</div>
 				<div style={{
 					width: '100%',
 				}}>
