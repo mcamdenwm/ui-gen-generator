@@ -102,44 +102,47 @@ export default async () => {
 						// walk, writeUIGenTree
 						// Merge selectors and actions from tree
 						let mutatedTree = walk(view, (node) => {
-							let resolveTree = resolveTrees.find(tree => tree.componentUuid === node.uuid);
+							const resolveTreesForComponent = resolveTrees.filter(tree => tree.componentUuid === node.uuid);
 							let res = {
 								...node,
+								selectors: [],
 							};
 
-							if (resolveTree && resolveTree.trees.length) {
-								let data = resolveTree.trees;
+							if (resolveTreesForComponent && resolveTreesForComponent.length) {
+								resolveTreesForComponent.forEach(rt => {
+									let data = rt.trees;
 
-								data = data
-									.map(datum => {
-										return walkResolve(datum, (node) => {
-											// Optimize
-											if (node.type === 'state' && node.args) {
-												delete node.args;
-											}
+									data = data
+										.map(datum => {
+											return walkResolve(datum, (node) => {
+												// Optimize
+												if (node.type === 'state' && node.args) {
+													delete node.args;
+												}
 
-											if (node.type !== 'state' && node.path) {
-												delete node.path;
-											}
+												if (node.type !== 'state' && node.path) {
+													delete node.path;
+												}
 
-											// Generate protected path
-											if (node.type === 'state') {
-												node.path.unshift('VIEW', 'storeState');
-											}
+												// Generate protected path
+												if (node.type === 'state') {
+													node.path.unshift('VIEW', 'storeState');
+												}
 
-											return node;
-										});
-									})
-								.map(writeUIGenTree);
+												return node;
+											});
+										})
+									.map(writeUIGenTree);
 
-								if (data.length === 1) {
-									data = data[0];
-								}
+									if (data.length === 1) {
+										data = data[0];
+									}
 
-								res.selectors = [{
-									propName: resolveTree.propName,
-									data: data || {},
-								}];
+									res.selectors.push({
+										propName: rt.propName,
+										data: data || {},										
+									});
+								});
 							}
 
 							return res;
