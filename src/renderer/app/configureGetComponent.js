@@ -183,8 +183,19 @@ export default async () => {
 							display = 'block';
 						}
 
+						let extra = {};
+						console.log(view)
+						if (view === 'preview') {
+							extra = {
+								background: 'linear-gradient(90deg, #FFF 20px, transparent 1%) center, linear-gradient(#FFF 20px, transparent 1%) center, #EFEFEF',
+								backgroundSize: '22px 22px',
+								height: '100vh',
+							};
+						}
+
 						return {
 							display: display,
+							...extra
 						};
 					},
 					uuid: () => {
