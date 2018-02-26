@@ -25,5 +25,10 @@ export default {
 	// Handlers available to the application, scoped @todo
 	"storeHandlers": [],
 	// List of props identified by uuid, attached to componentUuid
-	"props": [],
+	"props": [{
+		"componentUuid": "fa9481d8-4fda-41f4-87cb-34b6a3083a99",
+		"propName": "label",
+		"uuid": "3b6eee7b-1491-4b87-b92e-2ffdebd7518a",
+		"value": "Heyo"
+	}],
 };

@@ -158,7 +158,7 @@ export default async () => {
 								delete res.selectors;
 							}
 
-							if (!Object.keys(res.props).length) {
+							if (res.props && !Object.keys(res.props).length) {
 								delete res.props;
 							}
 
