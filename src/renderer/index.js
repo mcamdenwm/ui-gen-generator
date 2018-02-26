@@ -486,6 +486,14 @@ configureGetComponent()
 											},
 										},
 										toJS: true,
+									}, {
+										propName: 'viewProps',
+										data: {
+											$$WM__resolve: {
+												type: 'state',
+												path: ['VIEW', 'props'],
+											},
+										}
 									}],
 									actions: [{
 										propName: 'onFieldChange',
@@ -749,6 +757,86 @@ configureGetComponent()
 														},
 													}],
 												},
+											},
+										}]
+									}, {
+										propName: 'onUpdateProp',
+										sequence: [{
+											type: 'VIEW__UPDATE_PROP',
+											path: ['VIEW', 'props'],
+											data: {
+												$$WM__resolve: {
+													type: 'fn',
+													name: 'updateProp',
+													args: [{
+														$$WM__resolve: {
+															type: 'event',
+															index: 0,
+														}
+													}, {
+														$$WM__resolve: {
+															type: 'event',
+															index: 1,
+														},
+													}, {
+														$$WM__resolve: {
+															type: 'state',
+															path: ['VIEW', 'props'],
+														},
+													}]
+												},
+											},
+										}]
+									}, {
+										propName: 'onAddProp',
+										sequence: [{
+											type: 'VIEW__ADD_PROP',
+											path: ['VIEW', 'newPropUuid'],
+											data: {
+												$$WM__resolve: {
+													type: 'fn',
+													name: 'uuid',
+													args: [],
+												},
+											},
+										}, {
+											type: 'VIEW__ADD_PROP',
+											path: ['VIEW', 'props'],
+											data: {
+												$$WM__resolve: {
+													type: 'fn',
+													name: 'addProp',
+													args: [{
+														uuid: {
+															$$WM__resolve: {
+																type: 'state',
+																path: ['VIEW', 'newPropUuid'],
+															}
+														},
+														componentUuid: {
+															$$WM__resolve: {
+																type: 'state',
+																path: ['COMPONENT_EDITOR', 'component'],
+															}
+														},
+														propName: '',
+														value: '',
+													}, {
+														$$WM__resolve: {
+															type: 'state',
+															path: ['VIEW', 'props'],															
+														},
+													}],
+												},
+											},
+										}, {
+											type: 'COMPONENT_EDITOR__EDIT_PROP',
+											path: ['COMPONENT_EDITOR', 'prop'],
+											data: {
+												$$WM__resolve: {
+													type: 'state',
+													path: ['VIEW', 'newPropUuid'],
+												}
 											},
 										}]
 									}],

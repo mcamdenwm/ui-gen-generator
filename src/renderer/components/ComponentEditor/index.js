@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import * as Components from '@workmarket/front-end-components';
 import { map } from 'ramda';
+import { fromJS } from 'immutable';
 
 const {
 	WMText,
@@ -43,7 +44,7 @@ class ComponentEditor extends Component {
 			const Component = componentDef.default;
 
 			this.setState({
-				componentPropTypes: Component.propTypes,
+				componentPropTypes: extractPropTypes(Component.propTypes),
 			});
 		});
 	}
@@ -62,7 +63,7 @@ class ComponentEditor extends Component {
 				<div style={{
 					width: '100%',
 				}}>
-					<WMText>
+					<WMText style={{fontWeight: 'bold'}}>
 						Type
 					</WMText>
 					<WMAutocomplete
@@ -78,36 +79,50 @@ class ComponentEditor extends Component {
 				<div style={{
 					width: '100%',
 				}}>
-					<WMText>
-						Props
+					<WMText style={{fontWeight: 'bold'}}>
+						Props <WMFlatButton label="+" onClick={() => { this.props.onAddProp && this.props.onAddProp() }} />
 					</WMText>
-				 {
-					 	map((key) => {
-							const propType = this.state.componentPropTypes[key];
+				{
+						this.props.viewProps.map((prop, i) => {
+							const key = prop.get('propName') || i;
+							const propType = this.state.componentPropTypes[prop.get('propName')];
 							let Field = WMTextField;
 
-							if (propType.type === 'bool') {
+							if (propType && propType.type === 'bool') {
 								Field = WMToggle;
 							}
 
+							if (!propType) {
+								Field = () => (<div />)
+							}
+
 							return (
-								<div key={key}>
+								<div key={key} style={{marginLeft: 10}}>
+									<WMAutocomplete
+										floatingLabelText="PropName"
+										hintText="disabled"
+										dataSource={Object.keys(this.state.componentPropTypes)}
+										filter="caseInsensitiveFilter"
+										maxSearchResults={ 10 }
+										onNewRequest={ (a) => { this.props.onUpdateProp && this.props.onUpdateProp(prop.get('uuid'), { propName: a }) } }
+										searchText={prop.get('propName')}
+									/>
 									<Field
-										name={key}
-										label={key}
-										floatingLabelText={key}
-										value={this.props.component.getIn(['props', key])}
-										onChange={(e, value) => { this.props.onFieldChange({ [key]: value }) }}
+										name={prop.get('propName')}
+										value={prop.get('value')}
+										toggled={prop.get('value')}
+										onChange={(e, value) => { this.props.onUpdateProp && this.props.onUpdateProp(prop.get('uuid'), { value: value }) } }
+										onToggle={(e, value) => { this.props.onUpdateProp && this.props.onUpdateProp(prop.get('uuid'), { value: value }) }}
 									/>
 								</div>
 							);
-						}, Object.keys(this.state.componentPropTypes).filter(key => this.props.component.getIn(['props', key])) )
+						})
 					}
 				</div>
 				<div style={{
 					width: '100%',
 				}}>
-					<WMText>
+					<WMText style={{fontWeight: 'bold'}}>
 						Selectors <WMFlatButton label="+" onClick={() => { this.props.onAddSelector && this.props.onAddSelector() }} />
 					</WMText>
 					<SelectorContainer
@@ -122,7 +137,7 @@ class ComponentEditor extends Component {
 				<div style={{
 					width: '100%',
 				}}>
-					<WMText>
+					<WMText style={{fontWeight: 'bold'}}>
 						Actions
 					</WMText>
 				</div>

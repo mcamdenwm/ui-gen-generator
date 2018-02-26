@@ -13,7 +13,7 @@ import ViewTreeRenderer from '../components/ViewTreeRenderer';
 import ResolveTreeEditor from '../components/ResolveTreeEditor';
 import { walk, writeUIGenTree, walkResolve } from '../utils/';
 
-import Immutable, { Map, fromJS } from 'immutable';
+import Immutable, { Map, fromJS, isImmutable } from 'immutable';
 import TreeUtils from 'immutable-treeutils';
 const uuid = require('uuid/v4');
 
@@ -91,14 +91,12 @@ export default async () => {
 					},
 					// getUIGenTree for output, combines live resolve trees and current uigen tree for rendering
 					getUIGenTree: (state, type) => {
-						let { view, resolveTrees } = state.toJS();
+						let { view, resolveTrees, props } = state.toJS();
 
 						if (resolveTrees) {
 							resolveTrees = JSON.parse(resolveTrees);
 						}
 
-						console.log('Pre-mutation', view);
-						
 						// walk, writeUIGenTree
 						// Merge selectors and actions from tree
 						let mutatedTree = walk(view, (node) => {
@@ -138,7 +136,7 @@ export default async () => {
 									if (data.length === 1) {
 										data = data[0];
 									}
-
+									// @todo we should be able to converge selectors/props/actions into this resolve tree
 									res.selectors.push({
 										propName: rt.propName,
 										data: data || {},										
@@ -146,14 +144,28 @@ export default async () => {
 								});
 							}
 
+							if (props && props.length) {
+								const propsForNode = props.filter(p => p.componentUuid === node.uuid);
+								
+								res.props = {};
+
+								propsForNode.forEach(p => {
+									res.props[p.propName] = p.value;
+								});
+							}
+
 							if (!res.selectors.length) {
 								delete res.selectors;
+							}
+
+							if (!Object.keys(res.props).length) {
+								delete res.props;
 							}
 
 							return res;
 						});
 
-						console.log('mutatedTree', mutatedTree);
+						console.log('Full UIGen Tree', mutatedTree);
 						
 						if (type === 'json-editor') {
 							return JSON.stringify(mutatedTree, null, 2);
@@ -214,6 +226,18 @@ export default async () => {
 						});
 
 						return JSON.stringify(mutResolveTrees.toJS());
+					},
+					updateProp: (uuid, update, props) => {
+						const updateIndex = props.findIndex(p => p.get('uuid') === uuid);
+						return props.update(updateIndex, (p) => p.merge(update));
+					},
+					addProp: (prop, props) => {
+						let mutProps = props;
+						if (!isImmutable(mutProps)) {
+							mutProps = fromJS(mutProps);
+						}
+
+						return mutProps.push(Map(prop));
 					}
 				},
 				store,
