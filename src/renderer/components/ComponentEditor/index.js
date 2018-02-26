@@ -66,21 +66,23 @@ class ComponentEditor extends Component {
 					<WMText style={{fontWeight: 'bold'}}>
 						Type
 					</WMText>
-					<WMAutocomplete
-						floatingLabelText="Type"
-						hintText="WMFlatButton"
-						dataSource={componentTypes}
-						filter="caseInsensitiveFilter"
-						maxSearchResults={ 10 }
-						onNewRequest={ (a) => { this.props.onChangeType && this.props.onChangeType({type: a}, this.props.component.get('uuid')) } }
-						searchText={componentType}
-					/>
+					<div style={{marginLeft: 10}}>
+						<WMAutocomplete
+							floatingLabelText="Type"
+							hintText="WMFlatButton"
+							dataSource={componentTypes}
+							filter="caseInsensitiveFilter"
+							maxSearchResults={ 10 }
+							onNewRequest={ (a) => { this.props.onChangeType && this.props.onChangeType({type: a}, this.props.component.get('uuid')) } }
+							searchText={componentType}
+						/>
+					</div>
 				</div>
 				<div style={{
 					width: '100%',
 				}}>
 					<WMText style={{fontWeight: 'bold'}}>
-						Props <WMFlatButton label="+" onClick={() => { this.props.onAddProp && this.props.onAddProp() }} />
+						Props <WMFlatButton style={{minWidth: 22}} label="+" onClick={() => { this.props.onAddProp && this.props.onAddProp() }} />
 					</WMText>
 				{
 						this.props.viewProps.map((prop, i) => {
@@ -123,7 +125,7 @@ class ComponentEditor extends Component {
 					width: '100%',
 				}}>
 					<WMText style={{fontWeight: 'bold'}}>
-						Selectors <WMFlatButton label="+" onClick={() => { this.props.onAddSelector && this.props.onAddSelector() }} />
+						Selectors <WMFlatButton style={{minWidth: 22}} label="+" onClick={() => { this.props.onAddSelector && this.props.onAddSelector() }} />
 					</WMText>
 					<SelectorContainer
 						selectors={this.getSelectors()}
