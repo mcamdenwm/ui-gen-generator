@@ -102,6 +102,74 @@ configureGetComponent()
 												type: 'APPLICATION__SET_MAIN_VIEW',
 												path: ['APPLICATION', 'mainView'],
 												data: 'preview',
+											}, {
+												type: 'VIEW__UPDATE_STORE_DATA',
+												path: ['VIEW', 'storeState'],
+												conditional: {
+													$$WM__resolve: {
+														type: 'fn',
+														name: 'and',
+														args: [{
+															$$WM__resolve: {
+																type: 'state',
+																path: ['STORE_EDITOR', 'isValid'],
+															},
+														}, {
+															$$WM__resolve: {
+																type: 'state',
+																path: ['STORE_EDITOR', 'value'],
+															},
+														}]
+													},
+												},
+												data: {
+													$$WM__resolve: {
+														type: 'fn',
+														name: 'getStoreInitialData',
+														args: [{
+															$$WM__resolve: {
+																type: 'state',
+																path: ['STORE_EDITOR', 'value'],
+															},
+														}],
+													}
+												},
+											}, {
+												type: 'VIEW__UPDATE_STORE_HANDLERS',
+												path: ['VIEW', 'storeHandlers'],
+												conditional: {
+													$$WM__resolve: {
+														type: 'fn',
+														name: 'and',
+														args: [{
+															$$WM__resolve: {
+																type: 'state',
+																path: ['STORE_EDITOR', 'isValid'],
+															},
+														}, {
+															$$WM__resolve: {
+																type: 'state',
+																path: ['STORE_EDITOR', 'value'],
+															},
+														}]
+													},
+												},
+												data: {
+													$$WM__resolve: {
+														type: 'fn',
+														name: 'getStoreHandlers',
+														args: [{
+															$$WM__resolve: {
+																type: 'state',
+																path: ['STORE_EDITOR', 'value'],
+															},
+														}],
+													}
+												},
+											}, {
+												type: 'STORE_EDITOR__UPDATE_VALUE',
+												path: ['STORE_EDITOR', 'value'],
+												data: '',
 											}]
 										}]
 									}, {
@@ -115,6 +183,74 @@ configureGetComponent()
 												type: 'APPLICATION__SET_MAIN_VIEW',
 												path: ['APPLICATION', 'mainView'],
 												data: 'json-editor',
+											}, {
+												type: 'VIEW__UPDATE_STORE_DATA',
+												path: ['VIEW', 'storeState'],
+												conditional: {
+													$$WM__resolve: {
+														type: 'fn',
+														name: 'and',
+														args: [{
+															$$WM__resolve: {
+																type: 'state',
+																path: ['STORE_EDITOR', 'isValid'],
+															},
+														}, {
+															$$WM__resolve: {
+																type: 'state',
+																path: ['STORE_EDITOR', 'value'],
+															},
+														}]
+													},
+												},
+												data: {
+													$$WM__resolve: {
+														type: 'fn',
+														name: 'getStoreInitialData',
+														args: [{
+															$$WM__resolve: {
+																type: 'state',
+																path: ['STORE_EDITOR', 'value'],
+															},
+														}],
+													}
+												},
+											}, {
+												type: 'VIEW__UPDATE_STORE_HANDLERS',
+												path: ['VIEW', 'storeHandlers'],
+												conditional: {
+													$$WM__resolve: {
+														type: 'fn',
+														name: 'and',
+														args: [{
+															$$WM__resolve: {
+																type: 'state',
+																path: ['STORE_EDITOR', 'isValid'],
+															},
+														}, {
+															$$WM__resolve: {
+																type: 'state',
+																path: ['STORE_EDITOR', 'value'],
+															},
+														}]
+													},
+												},
+												data: {
+													$$WM__resolve: {
+														type: 'fn',
+														name: 'getStoreHandlers',
+														args: [{
+															$$WM__resolve: {
+																type: 'state',
+																path: ['STORE_EDITOR', 'value'],
+															},
+														}],
+													}
+												},
+											}, {
+												type: 'STORE_EDITOR__UPDATE_VALUE',
+												path: ['STORE_EDITOR', 'value'],
+												data: '',
 											}]
 										}],
 									}]
@@ -356,6 +492,11 @@ configureGetComponent()
 															type: 'state',
 															path: ['VIEW', 'storeHandlers'],
 														},
+													}, {
+														$$WM__resolve: {
+															type: 'state',
+															path: ['STORE_EDITOR', 'value'],
+														},
 													}],
 												},
 											},
@@ -396,8 +537,8 @@ configureGetComponent()
 										}, {
 											propName: 'onChange',
 											sequence: [{
-												type: 'VIEW__UPDATE_STORE_DATA',
-												path: ['VIEW', 'storeState'],
+												type: 'STORE_EDITOR__UPDATE_VALUE',
+												path: ['STORE_EDITOR', 'value'],
 												conditional: {
 													$$WM__resolve: {
 														type: 'state',
@@ -406,37 +547,10 @@ configureGetComponent()
 												},
 												data: {
 													$$WM__resolve: {
-														type: 'fn',
-														name: 'getStoreInitialData',
-														args: [{
-															$$WM__resolve: {
-																type: 'event',
-																index: 0,
-															},
-														}],
-													}
-												},
-											}, {
-												type: 'VIEW__UPDATE_STORE_HANDLERS',
-												path: ['VIEW', 'storeHandlers'],
-												conditional: {
-													$$WM__resolve: {
-														type: 'state',
-														path: ['STORE_EDITOR', 'isValid'],
+														type: 'event',
+														index: 0,
 													},
-												},
-												data: {
-													$$WM__resolve: {
-														type: 'fn',
-														name: 'getStoreHandlers',
-														args: [{
-															$$WM__resolve: {
-																type: 'event',
-																index: 0,
-															},
-														}],
-													}
-												},
+												}
 											}]
 										}]
 									} ]
@@ -541,6 +655,10 @@ configureGetComponent()
 											type: 'APPLICATION__SET_MAIN_VIEW',
 											path: ['APPLICATION', 'mainView'],
 											data: 'resolve-editor',
+										}, {
+											type: 'STORE_EDITOR__UPDATE_VALUE',
+											path: ['STORE_EDITOR', 'value'],
+											data: '',
 										}],
 									}, {
 										propName: 'onAddSelector',
@@ -617,7 +735,53 @@ configureGetComponent()
 											type: 'APPLICATION__SET_MAIN_VIEW',
 											path: ['APPLICATION', 'mainView'],
 											data: 'resolve-editor',
-										}]
+										}, {
+												type: 'VIEW__UPDATE_STORE_DATA',
+												path: ['VIEW', 'storeState'],
+												conditional: {
+													$$WM__resolve: {
+														type: 'state',
+														path: ['STORE_EDITOR', 'isValid'],
+													},
+												},
+												data: {
+													$$WM__resolve: {
+														type: 'fn',
+														name: 'getStoreInitialData',
+														args: [{
+															$$WM__resolve: {
+																type: 'state',
+																path: ['STORE_EDITOR', 'value'],
+															},
+														}],
+													}
+												},
+											}, {
+												type: 'VIEW__UPDATE_STORE_HANDLERS',
+												path: ['VIEW', 'storeHandlers'],
+												conditional: {
+													$$WM__resolve: {
+														type: 'state',
+														path: ['STORE_EDITOR', 'isValid'],
+													},
+												},
+												data: {
+													$$WM__resolve: {
+														type: 'fn',
+														name: 'getStoreHandlers',
+														args: [{
+															$$WM__resolve: {
+																type: 'state',
+																path: ['STORE_EDITOR', 'value'],
+															},
+														}],
+													}
+												},
+											}, {
+												type: 'STORE_EDITOR__UPDATE_VALUE',
+												path: ['STORE_EDITOR', 'value'],
+												data: '',
+											}]
 									}, {
 										propName: 'onDeleteSelector',
 										sequence: [{

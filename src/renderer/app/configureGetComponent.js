@@ -46,7 +46,10 @@ export default async () => {
 					getStoreHandlers: (storeAsJson) => {
 						return JSON.parse(storeAsJson).handlers;
 					},
-					renderStoreAsJson: (storeState, storeHandlers) => {
+					renderStoreAsJson: (storeState, storeHandlers, currentValue) => {
+						if (currentValue) {
+							return currentValue;
+						}
 						return JSON.stringify({
 							initialState: {
 								data: {

@@ -83,11 +83,13 @@ const storeConfig = {
 			data: {
 				isValid: true,
 				annotations: [],
+				value: '',
 			},
 		},
 		handlers: [
 			'STORE_EDITOR__SET_VALID',
-			'STORE_EDITOR__SET_ANNOTATIONS'
+			'STORE_EDITOR__SET_ANNOTATIONS',
+			'STORE_EDITOR__UPDATE_VALUE',
 		],		
 	},
 };
