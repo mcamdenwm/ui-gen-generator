@@ -45,7 +45,23 @@ function walkResolve(stack, cb) {
 	return walker(stack);
 }
 
-var color = scaleOrdinal(schemeDark2);
+let _c = scaleOrdinal(schemeDark2);
+let color = (() => {
+	let i = 1;
+	return () => {
+		if (i > 8) {
+			i = 1;
+		}
+
+		return _c(++i);
+	};
+})();
+
+// var color = (i) => {
+
+// 	console.log('Color with', i, _c(i));
+// 	return _c(i);
+// };
 
 class ResolveTreeEditor extends Component {
 	state: {}
@@ -215,13 +231,22 @@ class ResolveTreeEditor extends Component {
 			const { resolveTreesAsNodes } = this.state;
 			const dragFromResolve = resolveTreesAsNodes.flatten(1).find(n => n.get('uuid') === this._dragFrom.uuid);
 
-			let mutatedTreeList = this.state.resolveTrees.updateIn(seq, (parentNode) => {
+			const mutatedTreeList = this.state.resolveTrees.updateIn(seq, (parentNode) => {
 				console.log('Update parentNode', parentNode.toJS());
 				const parentNodeArgs = parentNode.get('args');
 				return parentNode.set('args', parentNodeArgs.push(dragFromResolve));
 			});
 
-			const uiGenTreeList = mutatedTreeList.toJS().map(writeUIGenTree);
+			const trimmedMutatedTreeList = mutatedTreeList.filter(n => {
+					if (this._dragFrom) {
+						return this._dragFrom.uuid !== n.get('uuid');
+					}
+
+					return true;
+				});
+
+
+			const uiGenTreeList = trimmedMutatedTreeList.toJS().map(writeUIGenTree);
 			
 			// @todo tree should be a list of strings (resolves)
 			const mutatedTree = JSON.stringify([{
@@ -487,7 +512,7 @@ export default (props) => {
 	
 	let namespaces = ['FOO']; // generate this in the future
 	let storeState = {};
-	
+
 	namespaces.forEach(key => {
 		storeState[key] = props.storeState.get(key);
 	});
