@@ -71,11 +71,13 @@ const storeConfig = {
 	APPLICATION: {
 		initialState: {
 			data: {
-				mainView: 'preview'
+				mainView: 'preview',
+				lastView: '',
 			},
 		},
 		handlers: [
 			'APPLICATION__SET_MAIN_VIEW',
+			'APPLICATION__SET_LAST_VIEW',
 		],
 	},
 	STORE_EDITOR: {
@@ -90,7 +92,7 @@ const storeConfig = {
 			'STORE_EDITOR__SET_VALID',
 			'STORE_EDITOR__SET_ANNOTATIONS',
 			'STORE_EDITOR__UPDATE_VALUE',
-		],		
+		],
 	},
 };
 

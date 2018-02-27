@@ -43,25 +43,6 @@ configureGetComponent()
 						}}>
 							{
 								getComponent({
-									type: 'WMGeneric',
-									children: [{
-										type: 'WMFlatButton',
-										props: {
-											label: 'Store',
-										},
-										actions: [{
-											propName: 'onClick',
-											sequence: [{
-												type: 'APPLICATION__SET_MAIN_VIEW',
-												path: ['APPLICATION', 'mainView'],
-												data: 'store-editor',
-											}]
-										}],
-									}]
-								})
-							}
-							{
-								getComponent({
 									type: 'ViewTreeRenderer',
 									selectors: [{
 										propName: 'tree',
@@ -82,46 +63,99 @@ configureGetComponent()
 							{
 								getComponent({
 									type: 'WMGeneric',
-									props: {
-										style: {
-											textAlign: 'right'
-										},
-									},
 									children: [{
-										type: 'WMFlatButton',
+										type: 'WMTabs',
 										props: {
-											label: '[Preview]'
+											tabs: [
+												{
+													label: 'Preview',
+													value: 'preview',
+												},
+												{
+													label: 'Resolve Editor',
+													value: 'resolve-editor',
+												},
+												{
+													label: 'Store',
+													value: 'store-editor',
+												},
+												{
+													label: 'Output',
+													value: 'json-editor',
+												},
+											]
 										},
+										selectors: [{
+											propName: 'value',
+											data: {
+												$$WM__resolve: {
+													type: "state",
+													path: ['APPLICATION', 'mainView'],
+												}
+											},
+										}],
 										actions: [{
-											propName: 'onClick',
+											propName: 'onChange',
 											sequence: [{
+												type: 'APPLICATION__SET_LAST_VIEW',
+												path: ['APPLICATION', 'lastView'],
+												data: {
+													$$WM__resolve: {
+														type: 'state',
+														path: ['APPLICATION', 'mainView'],
+													}
+												}												
+											}, {
+												type: 'APPLICATION__SET_MAIN_VIEW',
+												path: ['APPLICATION', 'mainView'],
+												data: {
+													$$WM__resolve: {
+														type: 'event',
+														index: 0,
+													}
+												}
+											}, {
+												conditional: {
+													$$WM__resolve: {
+														type: 'fn',
+														name: 'equals',
+														args: [{
+															$$WM__resolve: {
+																type: 'state',
+																path: ['APPLICATION', 'mainView'],
+															},
+														}, 'preview']
+													},
+												},
 												type: 'COMPONENT_EDITOR__EDIT_SELECTOR',
 												path: ['COMPONENT_EDITOR', 'selector'],
 												data: null,
 											}, {
-												type: 'APPLICATION__SET_MAIN_VIEW',
-												path: ['APPLICATION', 'mainView'],
-												data: 'preview',
-											}, {
-												type: 'VIEW__UPDATE_STORE_DATA',
-												path: ['VIEW', 'storeState'],
 												conditional: {
 													$$WM__resolve: {
 														type: 'fn',
 														name: 'and',
 														args: [{
 															$$WM__resolve: {
-																type: 'state',
-																path: ['STORE_EDITOR', 'isValid'],
+																type: 'fn',
+																name: 'equals',
+																args: [{
+																	$$WM__resolve: {
+																		type: 'state',
+																		path: ['APPLICATION', 'lastView'],
+																	},
+																}, 'store-editor']
 															},
 														}, {
 															$$WM__resolve: {
 																type: 'state',
-																path: ['STORE_EDITOR', 'value'],
+																path: ['STORE_EDITOR', 'isValid'],
 															},
-														}]
+														}],
 													},
 												},
+												type: 'VIEW__UPDATE_STORE_DATA',
+												path: ['VIEW', 'storeState'],
 												data: {
 													$$WM__resolve: {
 														type: 'fn',
@@ -135,25 +169,31 @@ configureGetComponent()
 													}
 												},
 											}, {
-												type: 'VIEW__UPDATE_STORE_HANDLERS',
-												path: ['VIEW', 'storeHandlers'],
 												conditional: {
 													$$WM__resolve: {
 														type: 'fn',
 														name: 'and',
 														args: [{
 															$$WM__resolve: {
-																type: 'state',
-																path: ['STORE_EDITOR', 'isValid'],
+																type: 'fn',
+																name: 'equals',
+																args: [{
+																	$$WM__resolve: {
+																		type: 'state',
+																		path: ['APPLICATION', 'lastView'],
+																	},
+																}, 'store-editor']
 															},
 														}, {
 															$$WM__resolve: {
 																type: 'state',
-																path: ['STORE_EDITOR', 'value'],
+																path: ['STORE_EDITOR', 'isValid'],
 															},
-														}]
+														}],
 													},
 												},
+												type: 'VIEW__UPDATE_STORE_HANDLERS',
+												path: ['VIEW', 'storeHandlers'],
 												data: {
 													$$WM__resolve: {
 														type: 'fn',
@@ -166,93 +206,8 @@ configureGetComponent()
 														}],
 													}
 												},
-											}, {
-												type: 'STORE_EDITOR__UPDATE_VALUE',
-												path: ['STORE_EDITOR', 'value'],
-												data: '',
 											}]
 										}]
-									}, {
-										type: 'WMFlatButton',
-										props: {
-											label: '[AS JSON]'
-										},
-										actions: [{
-											propName: 'onClick',
-											sequence: [{
-												type: 'APPLICATION__SET_MAIN_VIEW',
-												path: ['APPLICATION', 'mainView'],
-												data: 'json-editor',
-											}, {
-												type: 'VIEW__UPDATE_STORE_DATA',
-												path: ['VIEW', 'storeState'],
-												conditional: {
-													$$WM__resolve: {
-														type: 'fn',
-														name: 'and',
-														args: [{
-															$$WM__resolve: {
-																type: 'state',
-																path: ['STORE_EDITOR', 'isValid'],
-															},
-														}, {
-															$$WM__resolve: {
-																type: 'state',
-																path: ['STORE_EDITOR', 'value'],
-															},
-														}]
-													},
-												},
-												data: {
-													$$WM__resolve: {
-														type: 'fn',
-														name: 'getStoreInitialData',
-														args: [{
-															$$WM__resolve: {
-																type: 'state',
-																path: ['STORE_EDITOR', 'value'],
-															},
-														}],
-													}
-												},
-											}, {
-												type: 'VIEW__UPDATE_STORE_HANDLERS',
-												path: ['VIEW', 'storeHandlers'],
-												conditional: {
-													$$WM__resolve: {
-														type: 'fn',
-														name: 'and',
-														args: [{
-															$$WM__resolve: {
-																type: 'state',
-																path: ['STORE_EDITOR', 'isValid'],
-															},
-														}, {
-															$$WM__resolve: {
-																type: 'state',
-																path: ['STORE_EDITOR', 'value'],
-															},
-														}]
-													},
-												},
-												data: {
-													$$WM__resolve: {
-														type: 'fn',
-														name: 'getStoreHandlers',
-														args: [{
-															$$WM__resolve: {
-																type: 'state',
-																path: ['STORE_EDITOR', 'value'],
-															},
-														}],
-													}
-												},
-											}, {
-												type: 'STORE_EDITOR__UPDATE_VALUE',
-												path: ['STORE_EDITOR', 'value'],
-												data: '',
-											}]
-										}],
 									}]
 								})
 							}
@@ -559,6 +514,7 @@ configureGetComponent()
 						</div>
 						<div className="props" style={{
 							width: '15%',
+							padding: '0 10px',
 						}}>
 							{
 								getComponent({ 

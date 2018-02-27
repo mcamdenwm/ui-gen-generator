@@ -41,10 +41,20 @@ export default async () => {
 				api: client,
 				functions: {
 					getStoreInitialData: (storeAsJson) => {
-						return JSON.parse(storeAsJson).initialState.data;
+						try {
+							return JSON.parse(storeAsJson).initialState.data;
+						} catch (e) {
+							// Fails when editor loads for the first time
+							return '';
+						}
 					},
 					getStoreHandlers: (storeAsJson) => {
-						return JSON.parse(storeAsJson).handlers;
+						try {
+							return JSON.parse(storeAsJson).handlers;
+						} catch (e) {
+							// Fails when editor loads for the first time
+							return '';
+						}
 					},
 					renderStoreAsJson: (storeState, storeHandlers, currentValue) => {
 						if (currentValue) {
@@ -184,7 +194,6 @@ export default async () => {
 						}
 
 						let extra = {};
-						console.log(view)
 						if (view === 'preview') {
 							extra = {
 								background: 'linear-gradient(90deg, #FFF 20px, transparent 1%) center, linear-gradient(#FFF 20px, transparent 1%) center, #EFEFEF',
