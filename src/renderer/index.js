@@ -8,7 +8,7 @@ import store, { db } from './app/store';
 
 require('brace/mode/java');
 require('brace/theme/github');
-
+require('material-design-icons/iconFont/material-icons.css');
 
 const uuid = require('uuid/v4');
 
@@ -53,6 +53,75 @@ configureGetComponent()
 												toJS: true,
 											},
 										},
+									}, {
+										propName: 'selected',
+										data: {
+											$$WM__resolve: {
+												type: 'state',
+												path: ['COMPONENT_EDITOR', 'component']
+											},
+										},
+									}],
+									actions: [{
+										propName: 'onSelectComponent',
+										sequence: [{
+											type: 'COMPONENT_EDITOR__EDIT_COMPONENT',
+											path: ['COMPONENT_EDITOR', 'component'],
+											data: {
+												$$WM__resolve: {
+													type: 'event',
+													index: 0,
+												},
+											}
+										}]
+									}, {
+										propName: 'onAddChild',
+										sequence: [{
+											type: 'VIEW__ADD_COMPONENT',
+											path: ['VIEW', 'newComponentUuid'],
+											data: {
+												$$WM__resolve: {
+													type: 'fn',
+													name: 'uuid',
+													args: [],
+												},
+											},
+										}, {
+											type: 'VIEW__ADD_COMPONENT',
+											path: ['VIEW', 'view'],
+											data: {
+												$$WM__resolve: {
+													type: 'fn',
+													name: 'addComponentNode',
+													args: [{
+														$$WM__resolve: {
+															type: 'event',
+															index: 0,
+															path: ['uuid']
+														},
+													}, {
+														$$WM__resolve: {
+															type: 'state',
+															path: ['VIEW', 'newComponentUuid'],
+														},
+													}, {
+														$$WM__resolve: {
+															type: 'state',
+															path: ['VIEW', 'view'],
+														},
+													}]
+												},
+											},
+										}, {
+											type: 'COMPONENT_EDITOR__EDIT_COMPONENT',
+											path: ['COMPONENT_EDITOR', 'component'],
+											data: {
+												$$WM__resolve: {
+													type: 'state',
+													path: ['VIEW', 'newComponentUuid'],
+												},												
+											}
+										}],
 									}]
 								})
 							}
@@ -520,6 +589,7 @@ configureGetComponent()
 								getComponent({ 
 									type: 'ComponentEditor',
 									selectors: [{
+										// editing resolve
 										propName: 'editingSelector',
 										data: {
 											$$WM__resolve: {
@@ -654,7 +724,12 @@ configureGetComponent()
 																		type: 'selector',
 																		propName: '',
 																		trees: [],
-																		componentUuid: 'fa9481d8-4fda-41f4-87cb-34b6a3083a99',
+																		componentUuid: {
+																			$$WM__resolve: {
+																				type: 'state',
+																				path: ['COMPONENT_EDITOR', 'component'],
+																			}
+																		},
 																	}],
 																},
 															}, {

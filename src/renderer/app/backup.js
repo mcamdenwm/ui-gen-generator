@@ -3,12 +3,7 @@ export default {
 	"view": {
 		"uuid": "c6dbad4e-b6bf-4c8e-b912-50d28b1fe0d1",
 		"type": "WMGeneric",
-		"children": [
-			{
-				"uuid": "fa9481d8-4fda-41f4-87cb-34b6a3083a99",
-				"type": "WMFlatButton",
-			}
-		]
+		"children": [ ]
 	},
 	// Stringified list of resolve-able props like actions/selectors
 	"resolveTrees": `[]`,
@@ -25,10 +20,5 @@ export default {
 	// Handlers available to the application, scoped @todo
 	"storeHandlers": [],
 	// List of props identified by uuid, attached to componentUuid
-	"props": [{
-		"componentUuid": "fa9481d8-4fda-41f4-87cb-34b6a3083a99",
-		"propName": "label",
-		"uuid": "3b6eee7b-1491-4b87-b92e-2ffdebd7518a",
-		"value": "Heyo"
-	}],
+	"props": [],
 };

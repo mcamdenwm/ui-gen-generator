@@ -57,12 +57,6 @@ let color = (() => {
 	};
 })();
 
-// var color = (i) => {
-
-// 	console.log('Color with', i, _c(i));
-// 	return _c(i);
-// };
-
 class ResolveTreeEditor extends Component {
 	state: {}
 	componentWillMount() {

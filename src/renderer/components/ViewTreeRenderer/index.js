@@ -1,18 +1,6 @@
 import React, { Component } from 'react';
-import { WMText } from '@workmarket/front-end-components';
-
-const tree = {
-	type: 'App',
-	children: [{
-		type: 'View',
-		children: [{
-			type: 'WMFormzzzzzzz',
-			children: [{
-				type: 'WMTextField',
-			}]
-		}]
-	}]
-};
+import { WMText, WMFloatingActionButton, WMFontIcon } from '@workmarket/front-end-components';
+import AddButton from '../AddButton';
 
 const ListContainer = (props) => {
 	const styles = {
@@ -34,9 +22,12 @@ class ViewTreeRenderer extends Component {
 				return (<span />);
 			}
 			return (
-				<li key={i}>
+				<li style={{
+					fontWeight: this.props.selected === child.uuid ? 'bold' : 'normal',
+				}} key={i} onClick={(e) => { e.stopPropagation(); this.props.onSelectComponent && this.props.onSelectComponent(child.uuid) }}>
 					<WMText>
-						{child.type}
+						{child.type} 
+						<AddButton onClick={(e) => { e.stopPropagation(); this.props.onAddChild && this.props.onAddChild(child) } } />
 					</WMText>
 					{child.children && (
 						<ListContainer>

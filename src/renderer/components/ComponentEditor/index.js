@@ -23,6 +23,10 @@ async function getComponent(component) {
 
 	console.info('getComponent for ', component);
 
+	if (component === 'WMGeneric') {
+		return Promise.resolve({});
+	}
+
 	return import(`@workmarket/front-end-components/dist-es/${component}/index.js.flow`);
 }
 
@@ -32,29 +36,50 @@ class ComponentEditor extends Component {
 	};
 
 	componentWillMount() {
-		this.props.component && this.hydratePropTypes(this.props.component.get('type'));
+		this.props.component && this.props.component.get && this.hydratePropTypes(this.props.component.get('type'));
 	}
 
 	componentWillReceiveProps(nextProps) {
-		nextProps.component && this.hydratePropTypes(nextProps.component.get('type'));
+		console.info('##componentWillReceiveProps', nextProps);
+		nextProps.component && nextProps.component.get && this.hydratePropTypes(nextProps.component.get('type'));
 	}
 
 	hydratePropTypes = (type) => {
 		getComponent(type).then((componentDef) => {
 			const Component = componentDef.default;
-
+			
 			this.setState({
 				componentPropTypes: extractPropTypes(Component.propTypes),
+			});
+		})
+		.catch((e) => {
+			console.error('Component not found, propTypes not determinable', type);
+			
+			this.setState({
+				componentPropTypes: {
+					style: {
+						type: 'object',
+						isRequired: false,
+					}
+				},
 			});
 		});
 	}
 
 	getSelectors = () => {
 		const resolveTrees = JSON.parse(this.props.resolveTrees);
-		return resolveTrees.filter(tree => tree.type === 'selector');
+		return resolveTrees.filter(tree => tree.type === 'selector' && tree.componentUuid === this.props.component.get('uuid'));
+	}
+
+	getComponentProps = () => {
+		return this.props.viewProps.filter(prop => prop.get('componentUuid') === this.props.component.get('uuid'));
 	}
 
 	render() {
+		if (!this.props.component || !this.props.component.get) {
+			return null;
+		}
+
 		const componentType = this.props.component.get('type');
 		const componentTypes = [].concat(Object.keys(Components).filter(n => n !== 'commonStyles'), componentType);
 
@@ -85,7 +110,7 @@ class ComponentEditor extends Component {
 						Props <WMFlatButton style={{minWidth: 22}} label="+" onClick={() => { this.props.onAddProp && this.props.onAddProp() }} />
 					</WMText>
 				{
-						this.props.viewProps.map((prop, i) => {
+						this.getComponentProps().map((prop, i) => {
 							const key = prop.get('propName') || i;
 							const propType = this.state.componentPropTypes[prop.get('propName')];
 							let Field = WMTextField;

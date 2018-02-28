@@ -77,7 +77,6 @@ export default async () => {
 						return n;
 					},
 					updateComponentNode: (uuid, data, state) => {
-						debugger;
 						if (!state || typeof uuid !== 'string') {
 							return {};
 						}
@@ -90,6 +89,7 @@ export default async () => {
 						return f;
 					},
 					getComponentNode: (uuid, state) => {
+						console.log('##getComponentNode', uuid, state);
 						if (!state || typeof uuid !== 'string') {
 							return {};
 						}
@@ -101,6 +101,21 @@ export default async () => {
 						}
 
 						return state.getIn(seq);
+					},
+					addComponentNode: (parentUuid, newUuid, state) => {
+						const parentSeq = treeUtils.byId(state, parentUuid);
+						if (!parentSeq) {
+							console.error('Unable to find parent', state, parentUuid);
+							return state;
+						}
+
+						return state.updateIn(parentSeq.concat('children'), (children) => {
+							return children.push(Map({
+								uuid: newUuid,
+								type: 'WMGeneric',
+								children: [],
+							}))
+						});
 					},
 					// getUIGenTree for output, combines live resolve trees and current uigen tree for rendering
 					getUIGenTree: (state, type) => {
@@ -172,7 +187,12 @@ export default async () => {
 							}
 
 							if (res.props && !Object.keys(res.props).length) {
+								// res.props.id = node.uuid;
 								delete res.props;
+							}
+
+							if (res.children && !res.children.length) {
+								delete res.children;
 							}
 
 							return res;
