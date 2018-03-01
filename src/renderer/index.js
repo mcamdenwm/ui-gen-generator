@@ -347,6 +347,15 @@ configureGetComponent()
 												},
 											},
 										}, {
+											propName: 'storeHandlers',
+											data: {
+												$$WM__resolve: {
+													type: 'state',
+													path: ['VIEW', 'storeHandlers'],
+												},
+											},
+											toJS: true,
+										}, {
 											propName: 'resolveTrees',
 											data: {
 												$$WM__resolve: {
@@ -686,7 +695,7 @@ configureGetComponent()
 										propName: 'onAddSelector',
 										sequence: [{
 											type: 'VIEW__ADD_SELECTOR',
-											path: ['VIEW', 'newSelectorUuid'],
+											path: ['VIEW', 'newResolveUuid'],
 											data: {
 												$$WM__resolve: {
 													type: 'fn',
@@ -718,10 +727,15 @@ configureGetComponent()
 																		uuid: {
 																			$$WM__resolve: {
 																				type: 'state',
-																				path: ['VIEW', 'newSelectorUuid'],
+																				path: ['VIEW', 'newResolveUuid'],
 																			},
 																		},
-																		type: 'selector',
+																		type: {
+																			$$WM__resolve: {
+																				type: 'event',
+																				index: 0,
+																			},
+																		},
 																		propName: '',
 																		trees: [],
 																		componentUuid: {
@@ -754,7 +768,7 @@ configureGetComponent()
 												selector: {
 													$$WM__resolve: {
 														type: 'state',
-														path: ['VIEW', 'newSelectorUuid'],
+														path: ['VIEW', 'newResolveUuid'],
 													},
 												}
 											},
@@ -831,7 +845,7 @@ configureGetComponent()
 												selector: {
 													$$WM__resolve: {
 														type: 'state',
-														path: ['VIEW', 'newSelectorUuid'],
+														path: ['VIEW', 'newResolveUuid'],
 													},
 												}
 											},
@@ -870,7 +884,7 @@ configureGetComponent()
 												selector: {
 													$$WM__resolve: {
 														type: 'state',
-														path: ['VIEW', 'newSelectorUuid'],
+														path: ['VIEW', 'newResolveUuid'],
 													},
 												}
 											},

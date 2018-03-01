@@ -132,6 +132,7 @@ export default async () => {
 							let res = {
 								...node,
 								selectors: [],
+								actions: [],
 							};
 
 							if (resolveTreesForComponent && resolveTreesForComponent.length) {
@@ -146,13 +147,24 @@ export default async () => {
 													delete node.args;
 												}
 
-												if (node.type !== 'state' && node.path) {
+												if (node.type !== 'state' && node._type !== 'redux-action' && node.path) {
 													delete node.path;
+												}
+
+												// Redux action
+												if (node.type !== 'state' && node.type !== 'fn' && node.type !== 'string') {
+													node.data = node.args;
+													delete node.args;
 												}
 
 												// Generate protected path
 												// Unless showing to the user
 												if (node.type === 'state' && type !== 'json-editor') {
+													node.path.unshift('VIEW', 'storeState');
+												}
+												// Generate protected action type
+												if (node._type && node._type === 'redux-action' && type !== 'json-editor') {
+													node.type = 'VIEW__ACTION_FIRED';
 													node.path.unshift('VIEW', 'storeState');
 												}
 
@@ -164,11 +176,19 @@ export default async () => {
 									if (data.length === 1) {
 										data = data[0];
 									}
-									// @todo we should be able to converge selectors/props/actions into this resolve tree
-									res.selectors.push({
-										propName: rt.propName,
-										data: data || {},										
-									});
+
+									if (rt.type === 'selector') {
+										res.selectors.push({
+											propName: rt.propName,
+											data: data || {},
+										});
+									}
+									else if (rt.type === 'action') {
+										res.actions.push({
+											propName: rt.propName,
+											sequence: [].concat(data) || [],
+										});
+									}
 								});
 							}
 

@@ -42,6 +42,10 @@ export default (state, args, block) => {
 
 	let blockName = block.get('name');
 
+	if (!blockName && block.get('_type') && block.get('_type') === 'redux-action')  {
+		blockName = block.get('type');
+	}
+
 	if (block.get('type') === 'state') {
 		blockName = 'state';
 	}

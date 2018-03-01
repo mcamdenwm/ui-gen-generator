@@ -368,6 +368,7 @@ class ResolveTreeEditor extends Component {
 				top: editNode && editNode.getIn(['position', 'y']) || 0,
 			};
 			resolveDataJson = editResolve.toJS();
+			console.error('##resolveDataJson', resolveDataJson);
 			showEditor = true;
 		}
 
@@ -387,6 +388,7 @@ class ResolveTreeEditor extends Component {
 					onRemoveArg={(arg) => this.handleRemoveArg(resolveDataJson, arg)}
 					onCancel={() => { this.setState({edit: null, }) }}
 					storeState={this.props.storeState}
+					storeHandlers={this.props.storeHandlers}
 					onRemoveNode={(uuid) => { this.handleRemoveNode(uuid) }}
 				/>
 			)}
@@ -479,9 +481,10 @@ class ResolveTreeEditor extends Component {
 						const sourceTop = node.getIn(['position', 'y']);
 						const targetLeft = this.state.dragToPosition.x - 10;
 						const targetTop = this.state.dragToPosition.y - 10;
+						const linkColor = node.get('color') || '#cc9900';
 
 						return (<path
-							stroke="#cc9900"
+							stroke={linkColor}
 							strokeWidth="2px"
 							d={ `M${sourceLeft},${sourceTop} L ${targetLeft} ${targetTop}` } />
 						);

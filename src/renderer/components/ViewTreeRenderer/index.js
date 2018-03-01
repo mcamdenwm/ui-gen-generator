@@ -6,6 +6,7 @@ const ListContainer = (props) => {
 	const styles = {
 		listStyleType: 'none',
 		paddingLeft: 10,
+		cursor: 'pointer',
 	};
 
 	return (

@@ -75,6 +75,11 @@ class ComponentEditor extends Component {
 		return this.props.viewProps.filter(prop => prop.get('componentUuid') === this.props.component.get('uuid'));
 	}
 
+	getActions = () => {
+		const resolveTrees = JSON.parse(this.props.resolveTrees);
+		return resolveTrees.filter(tree => tree.type !== 'selector' && tree.componentUuid === this.props.component.get('uuid'));
+	}
+
 	render() {
 		if (!this.props.component || !this.props.component.get) {
 			return null;
@@ -150,7 +155,7 @@ class ComponentEditor extends Component {
 					width: '100%',
 				}}>
 					<WMText style={{fontWeight: 'bold'}}>
-						Selectors <WMFlatButton style={{minWidth: 22}} label="+" onClick={() => { this.props.onAddSelector && this.props.onAddSelector() }} />
+						Selectors <WMFlatButton style={{minWidth: 22}} label="+" onClick={() => { this.props.onAddSelector && this.props.onAddSelector('selector') }} />
 					</WMText>
 					<SelectorContainer
 						selectors={this.getSelectors()}
@@ -165,8 +170,16 @@ class ComponentEditor extends Component {
 					width: '100%',
 				}}>
 					<WMText style={{fontWeight: 'bold'}}>
-						Actions
+						Actions <WMFlatButton style={{minWidth: 22}} label="+" onClick={() => { this.props.onAddSelector && this.props.onAddSelector('action') }} />
 					</WMText>
+					<SelectorContainer
+						selectors={this.getActions()}
+						props={Object.keys(this.state.componentPropTypes)}
+						onClick={(uuid) => {this.props.onEditSelector && this.props.onEditSelector(uuid)}}
+						editing={this.props.editingSelector}
+						onUpdateSelector={(selector, propName) => { this.props.onUpdateSelector && this.props.onUpdateSelector(JSON.stringify(selector), propName); }}
+						onDeleteSelector={(uuid) => { this.props.onDeleteSelector && this.props.onDeleteSelector(uuid); }}
+					/>
 				</div>
 			</div>
 		);

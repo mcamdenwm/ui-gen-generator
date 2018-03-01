@@ -28,12 +28,14 @@ class RenderView extends Component {
 
   	const view = JSON.parse(this.props.view);
 
+  	console.log('Resolving', view);
+
   	let resolverResult;
   	let componentResult = null;
 
   	try {
-  		resolverResult = resolver(view);
-  		componentResult = this.state.getComponent(resolverResult);
+  		// resolverResult = resolver(view);
+  		componentResult = this.state.getComponent(view);
   	} catch (e) {
   		console.error('Failed to render a thing', e);
   	}

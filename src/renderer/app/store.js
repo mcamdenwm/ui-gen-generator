@@ -38,6 +38,10 @@ const storeConfig = {
 			'VIEW__ADD_PROP',
 			'VIEW__EDIT_PROP',
 			'VIEW__UPDATE_PROP',
+			'VIEW__ADD_ACTION',
+			'VIEW__EDIT_ACTION',
+			'VIEW__DELETE_ACTION',
+			'VIEW__ACTION_FIRED',
 		],
 	},
 	COMPONENT_EDITOR: {

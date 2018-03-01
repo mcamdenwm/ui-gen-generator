@@ -22,13 +22,30 @@ class ResolveParamsEditor extends Component {
 	}
 
 	transferPropsToState(props) {
+		let { args, path, _type } = props;
+		let actionPath = [];
+		let pathArgs = [].concat(props.args, props.path);
+
+		if (_type === 'redux-action') {
+			actionPath = path;
+			path = [];
+			pathArgs = [].concat(props.args);
+
+			if (actionPath && actionPath.length) {
+				actionPath = actionPath.map(a => a.name);
+				actionPath = actionPath.join('.');
+			}
+		}
+
 		this.setState({
 			type: props.type,
-			args: props.args || [],
+			args: args || [],
 			argColors: props.argColors || {},
 			name: props.name,
-			path: props.path || [],
-			pathArgs: [].concat(props.args, props.path),
+			path: path || [],
+			pathArgs: pathArgs,
+			storeHandler: props.type,
+			actionPath: actionPath,
 		});
 	}
 
@@ -41,6 +58,12 @@ class ResolveParamsEditor extends Component {
 	handleChangeFn = (value) => {
 		this.setState({
 			name: value,
+		});
+	}
+
+	handleChangeHandler = (value) => {
+		this.setState({
+			storeHandler: value,
 		});
 	}
 
@@ -75,18 +98,28 @@ class ResolveParamsEditor extends Component {
 			name,
 			type,
 			pathArgs,
+			storeHandler,
+			actionPath,
 		} = this.state;
+
+		const isTypeStateOrFn = type === 'state' || type === 'fn';
 
 		const block = {
 			name,
-			type,
+			type: !isTypeStateOrFn ? storeHandler : type,
 			uuid,
 		};
 
 		if (type === 'state') {
 			block.path = pathArgs;
-		} else {
+		} else if (type === 'fn') {
 			block.args = pathArgs;
+		} else {
+			// Action
+			block.name = storeHandler;
+			block.args = pathArgs;
+			block._type = 'redux-action';
+			block.path = actionPath.split('.');
 		}
 
 		this.props.onSave(block);
@@ -120,6 +153,9 @@ class ResolveParamsEditor extends Component {
 	}
 
 	render() {
+		const { type } = this.state;
+		const isTypeStateOrFn = type === 'state' || type === 'fn';
+
 		return (
 			<div
 				style={{
@@ -128,11 +164,34 @@ class ResolveParamsEditor extends Component {
 				}}
 			>	
 				<div>
-					<select value={this.state.type} onChange={this.handleChange}>
+					<select value={isTypeStateOrFn ? this.state.type : 'redux-action'} onChange={this.handleChange}>
 						<option value="state">State</option>
 						<option value="fn">Function</option>
+						<option value="redux-action">Redux Action</option>
 					</select>
 				</div>
+				{
+					!isTypeStateOrFn && (
+						<div style={{marginBottom: 10}}>
+							<WMAutocomplete
+								floatingLabelText="handler"
+								hintText="FOO__UPDATE_BAR"
+								dataSource={this.props.storeHandlers}
+								filter="caseInsensitiveFilter"
+								maxSearchResults={ 10 }
+								onNewRequest={ (a) => { this.handleChangeHandler(a) } }
+								onBlur={(e) => { this.handleChangeHandler(e.target.value) }}
+								searchText={this.state.storeHandler}
+							/>
+							<WMTextField
+								floatingLabelText="path"
+								hintText="FOO.bar.result"
+								value={this.state.actionPath}
+								onChange={(e, v) => { this.setState({ actionPath: v }) }}
+							/>
+						</div>
+					)
+				}
 				{
 					this.state.type === 'fn' && (
 						<div style={{marginBottom: 10}}>

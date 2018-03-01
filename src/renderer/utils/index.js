@@ -57,6 +57,24 @@ export const writeUIGenTree = (functionTree) => {
 			block.path = block.args;
 		}
 
+		if (block._type && block._type === 'redux-action') {
+			let mutBlock = {
+				...block,
+			};
+
+			delete mutBlock.name;
+
+			if (R.is(Array, mutBlock.data)) {
+				mutBlock.data = writeUIGenTree(mutBlock.data[0]);
+			}
+
+			// delete mutBlock._type;
+
+			return {
+				...mutBlock,
+			};
+		}
+
 		return {
 			$$WM__resolve: {
 				...block,
